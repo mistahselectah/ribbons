@@ -93,8 +93,8 @@ var main=function() {
         return shader;
     }
 
-    var shader_vertex=getShader(GL, "color-shader-vs");
-    var shader_fragment=getShader( GL, "color-shader-fs");
+    var shader_vertex=getShader(GL, "shader-vs");
+    var shader_fragment=getShader( GL, "shader-fs");
 
     var SHADER_PROGRAM=GL.createProgram();
     GL.attachShader(SHADER_PROGRAM, shader_vertex);
@@ -108,11 +108,11 @@ var main=function() {
 
     var _position = GL.getAttribLocation(SHADER_PROGRAM, "position");
     var _color = GL.getAttribLocation(SHADER_PROGRAM, "color");
-    //var _normal = GL.getAttribLocation(SHADER_PROGRAM, "normal");
+    var _normal = GL.getAttribLocation(SHADER_PROGRAM, "normal");
 
     GL.enableVertexAttribArray(_position);
     GL.enableVertexAttribArray(_color);
-    //GL.enableVertexAttribArray(_normal);
+    GL.enableVertexAttribArray(_normal);
 
     GL.useProgram(SHADER_PROGRAM);
 
@@ -126,11 +126,13 @@ var main=function() {
     var THETA=0,
         PHI=0;
 
-    LIBS.translateZ(VIEWMATRIX, -5);
+    LIBS.translateZ(VIEWMATRIX, -25);
 
     /*========================= DRAWING ========================= */
-    GL.enable(GL.DEPTH_TEST);
-    GL.depthFunc(GL.LESS);
+    //GL.enable(GL.DEPTH_TEST);
+    //GL.depthFunc(GL.LEQUAL);
+    GL.enable(GL.BLEND);
+    GL.blendFunc(GL.SRC_ALPHA, GL.ONE);
     GL.clearColor(0.0, 0.0, 0.0, 0.0);
     GL.clearDepth(1.0);
     var time_old=0;
@@ -140,7 +142,8 @@ var main=function() {
             scaleFactor+=0.5;
             //var model = primitives.plane(1,1,45);
             //var model = primitives.triangle(1,1,45, 0.5);
-            var model = primitives.cylinder(scaleFactor,scaleFactor,120);
+            //var model = primitives.cylinder(scaleFactor,scaleFactor,36);
+            var model = primitives.cone(scaleFactor,scaleFactor,36);
 
             var vertexBuffer= GL.createBuffer ();
             GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
@@ -152,10 +155,10 @@ var main=function() {
             GL.bufferData(GL.ARRAY_BUFFER,new Float32Array(model.colors),GL.STATIC_DRAW);
             GL.vertexAttribPointer(_color, 3, GL.FLOAT, false,0,0);
 
-            /*var normalBuffer = GL.createBuffer ();
+            var normalBuffer = GL.createBuffer ();
             GL.bindBuffer(GL.ARRAY_BUFFER, normalBuffer);
             GL.bufferData(GL.ARRAY_BUFFER,new Float32Array(model.normals),GL.STATIC_DRAW);
-            GL.vertexAttribPointer(_normal, 3, GL.FLOAT, false,0,0);*/
+            GL.vertexAttribPointer(_normal, 3, GL.FLOAT, false,0,0);
 
             var facesBuffer = GL.createBuffer ();
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, facesBuffer);
@@ -179,15 +182,11 @@ var main=function() {
 
         GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height);
         GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
-        GL.enable(GL.DEPTH_TEST);
-        GL.depthFunc(GL.LESS);
-        GL.enable(GL.BLEND);
-        GL.blendFunc(GL.SRC_ALPHA, GL.ONE);
         GL.uniformMatrix4fv(_Pmatrix, false, PROJMATRIX);
         GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
         GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
 
-        render(1);
+        render(10);
 
         GL.flush();
 

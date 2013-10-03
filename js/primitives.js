@@ -118,9 +118,10 @@ var primitives = {
             //vertice coords
             vertices.push(x, y, z);
             //color for vertice
-            colors.push(0, 1,1);
+            colors.push(1, 0,0);
             faces.push(0, i+1,i<rate-1?i+2:1);
         }
+        this.pushNormals(vertices, faces, normals);
 
         return {vertices: vertices, colors: colors, faces: faces, normals: normals};
     },
