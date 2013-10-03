@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'/>
+    <script type="text/javascript" src="js/libs.js"></script>
+    <script type="text/javascript" src="js/primitives.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+
+    <script id="color-shader-vs" type="x-shader/x-vertex">
+        attribute vec3 position;
+        attribute vec3 color;
+
+        uniform mat4 Pmatrix;
+        uniform mat4 Vmatrix;
+        uniform mat4 Mmatrix;
+
+        varying vec3 vColor;
+
+        void main(void) {
+            vColor=color;
+            gl_Position = Pmatrix*Vmatrix*Mmatrix*vec4(position, 1.);
+        }
+    </script>
+
+    <script id="color-shader-fs" type="x-shader/x-fragment">
+        precision mediump float;
+        varying vec3 vColor;
+
+        void main(void) {
+            gl_FragColor = vec4(vColor, 0.8);
+        }
+    </script>
+
+    <script id="shader-vs" type="x-shader/x-vertex">
+        attribute vec3 position;
+        attribute vec3 color;
+        attribute vec3 normal;
+
+        uniform mat4 Pmatrix;
+        uniform mat4 Vmatrix;
+        uniform mat4 Mmatrix;
+
+        varying vec3 vColor;
+        varying vec3 vNormal;
+        varying vec3 vView;
+        void main(void) {
+            vColor=color;
+            vNormal=vec3(Mmatrix*vec4(normal, 0.));
+            vView=vec3(Vmatrix*Mmatrix*vec4(position, 1.));
+            gl_Position = Pmatrix*Vmatrix*Mmatrix*vec4(position, 1.);
+        }
+    </script>
+
+    <script id="shader-fs" type="x-shader/x-fragment">
+        precision mediump float;
+        varying vec3 vColor;
+        varying vec3 vNormal;
+        varying vec3 vView;
+        const vec3 source_ambient_color=vec3(1.,1.,1.);
+        const vec3 source_diffuse_color=vec3(1.,2.,4.);
+        const vec3 source_specular_color=vec3(1.,1.,1.);
+        const vec3 source_direction=vec3(0,0,-5);
+        
+        const vec3 mat_ambient_color=vec3(0.3,0.3,0.3);
+        const vec3 mat_diffuse_color=vec3(1.,1.,1.);
+        const vec3 mat_specular_color=vec3(1.,1.,1.);
+        const float mat_shininess=10.;
+        
+        void main(void) {
+            vec3 color=vColor;
+            vec3 I_ambient=source_ambient_color*mat_ambient_color;
+            vec3 I_diffuse=source_diffuse_color*mat_ambient_color*max(0., dot(vNormal, source_direction));
+            vec3 V=normalize(vView);
+            vec3 R=reflect(source_direction, normalize(vNormal));
+            
+            
+            vec3 I_specular=source_specular_color*mat_specular_color*pow(max(dot(R,V),0.), mat_shininess);
+            vec3 I=I_ambient+I_diffuse+I_specular;
+            gl_FragColor = vec4(I*color, 1.);
+        }
+    </script>
+</head>
+<body style='margin:0px' onload='main()'>
+    <canvas id='canvas' style='position: absolute; background-color: black;'></canvas>
+</body>
+</html>
