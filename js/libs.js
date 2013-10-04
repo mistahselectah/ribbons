@@ -19,9 +19,9 @@ var LIBS={
 
     get_I4: function() {
         return [1,0,0,0,
-            0,1,0,0,
-            0,0,1,0,
-            0,0,0,1];
+                0,1,0,0,
+                0,0,1,0,
+                0,0,0,1];
     },
 
     set_I4: function(m) {
@@ -79,10 +79,10 @@ var LIBS={
     },
 
     scaleY: function(m, t){
-        m[1] =m[4]*t;
+        m[5] =m[5]*t;
     },
 
     scaleZ: function(m, t){
-        m[2] = m[10]*t;
+        m[10] = m[10]*t;
     }
 }

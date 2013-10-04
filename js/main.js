@@ -170,16 +170,20 @@ var main=function() {
         }
     }
 
+    var scaleFactor = 1;
     var animate=function(time) {
         var dt=time-time_old;
         if (!drag) {
             dX*=AMORTIZATION, dY*=AMORTIZATION;
             THETA+=dX, PHI+=dY;
         }
-
+        scaleFactor+=dt/10000;
         LIBS.set_I4(MOVEMATRIX);
         LIBS.rotateY(MOVEMATRIX, THETA);
         LIBS.rotateX(MOVEMATRIX, PHI);
+        LIBS.scaleX(MOVEMATRIX, scaleFactor);
+        LIBS.scaleY(MOVEMATRIX, scaleFactor);
+
         time_old=time;
 
         GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height);
