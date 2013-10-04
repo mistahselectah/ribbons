@@ -127,7 +127,7 @@ var main=function() {
     var THETA=0,
         PHI=0;
 
-    LIBS.translateZ(VIEWMATRIX, -5);
+    LIBS.translateZ(VIEWMATRIX, -20);
 
     /*========================= DRAWING ========================= */
     //GL.enable(GL.DEPTH_TEST);
@@ -189,7 +189,7 @@ var main=function() {
         GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
         GL.uniform3f(_wsLightPosition, 4,4,4);
 
-        render(3);
+        render(10);
 
         GL.flush();
 
