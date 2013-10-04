@@ -41,6 +41,7 @@
         uniform mat4 Vmatrix;
         uniform mat4 Mmatrix;
         uniform vec3 wsLightPosition;
+        uniform float alpha;
 
         varying vec3 vColor;
         varying vec3 wsPosition;
@@ -78,6 +79,7 @@
         uniform mat4 Vmatrix;
         uniform mat4 Mmatrix;
         uniform vec3 wsLightPosition;
+        uniform float alpha;
 
         varying vec3 vColor;
         varying vec3 wsPosition;
@@ -126,7 +128,7 @@
         		// Diffuse : "color" of the object
         		MaterialDiffuseColor * lColor * lPower * cosTheta / (distance*distance) +
         		// Specular : reflective highlight, like a mirror
-        		MaterialSpecularColor * lColor * lPower * pow(cosAlpha,5.) / (distance*distance),1.);
+        		MaterialSpecularColor * lColor * lPower * pow(cosAlpha,5.) / (distance*distance),alpha);
         }
     </script>
 </head>

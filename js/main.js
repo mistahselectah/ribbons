@@ -106,6 +106,7 @@ var main=function() {
     var _Vmatrix = GL.getUniformLocation(SHADER_PROGRAM, "Vmatrix");
     var _Mmatrix = GL.getUniformLocation(SHADER_PROGRAM, "Mmatrix");
     var _wsLightPosition = GL.getUniformLocation(SHADER_PROGRAM, "wsLightPosition");
+    var _alpha = GL.getUniformLocation(SHADER_PROGRAM, "alpha");
 
     var _position = GL.getAttribLocation(SHADER_PROGRAM, "position");
     var _color = GL.getAttribLocation(SHADER_PROGRAM, "color");
@@ -127,11 +128,11 @@ var main=function() {
     var THETA=0,
         PHI=0;
 
-    LIBS.translateZ(VIEWMATRIX, -20);
+    LIBS.translateZ(VIEWMATRIX, -50);
 
     /*========================= DRAWING ========================= */
-    //GL.enable(GL.DEPTH_TEST);
-    //GL.depthFunc(GL.LEQUAL);
+    GL.enable(GL.DEPTH_TEST);
+    GL.depthFunc(GL.LEQUAL);
     GL.enable(GL.BLEND);
     GL.blendFunc(GL.SRC_ALPHA, GL.ONE);
     GL.clearColor(0.0, 0.0, 0.0, 0.0);
@@ -140,10 +141,11 @@ var main=function() {
     var render = function(count){
         var scaleFactor = 1;
         for(var i = 0; i<count;i++){
+            GL.uniform1f(_alpha, i==0? 1: 1 - i/200);
             scaleFactor+=0.5;
             //var model = primitives.plane(1,1,45);
             //var model = primitives.triangle(1,1,45, 0.5);
-            var model = primitives.cylinder(scaleFactor,scaleFactor,120);
+            var model = primitives.cylinder(scaleFactor,scaleFactor,360);
             //var model = primitives.cone(scaleFactor,scaleFactor,36);
 
             var vertexBuffer= GL.createBuffer ();
@@ -181,8 +183,8 @@ var main=function() {
         LIBS.set_I4(MOVEMATRIX);
         LIBS.rotateY(MOVEMATRIX, THETA);
         LIBS.rotateX(MOVEMATRIX, PHI);
-        LIBS.scaleX(MOVEMATRIX, scaleFactor);
-        LIBS.scaleY(MOVEMATRIX, scaleFactor);
+        //LIBS.scaleX(MOVEMATRIX, scaleFactor);
+        //LIBS.scaleY(MOVEMATRIX, scaleFactor);
 
         time_old=time;
 
@@ -193,7 +195,7 @@ var main=function() {
         GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
         GL.uniform3f(_wsLightPosition, 4,4,4);
 
-        render(10);
+        render(50);
 
         GL.flush();
 
