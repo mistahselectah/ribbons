@@ -10,6 +10,56 @@ if ( !window.requestAnimationFrame ) {
 };
 
 var main=function() {
+
+    /*var audio = document.getElementById("audio");
+    audio.mozFrameBufferLength = 1024;
+    audio.addEventListener('MozAudioAvailable', audioAvailable, false);
+    audio.addEventListener('loadedmetadata', loadedMetadata, false);
+    audio.play();
+
+    var channels = 2,
+        rate,
+        frameBufferLength,
+        fft,
+        magnitude;
+
+    channels          = audio.mozChannels;
+    rate              = audio.mozSampleRate;
+    frameBufferLength = audio.mozFrameBufferLength;
+
+    fft = new FFT(frameBufferLength / channels, rate);
+
+    function audioAvailable(event) {
+        var fb = event.frameBuffer,
+            t  = event.time,
+            signal = new Float32Array(fb.length / channels);
+
+
+        for (var i = 0, fbl = frameBufferLength / 2; i < fbl; i++ ) {
+          // Assuming interlaced stereo channels,
+          // need to split and merge into a stero-mix mono signal
+          signal[i] = (fb[2*i] + fb[2*i+1]) / 2;
+        }
+
+        fft.forward(signal);
+
+        // Clear the canvas before drawing spectrum
+
+        for (var i = 0; i < fft.spectrum.length; i++ ) {
+          // multiply spectrum by a zoom value
+          magnitude = fft.spectrum[i] * 4000;
+        }
+    }
+
+
+    function loadedMetadata() {
+        channels          = audio.mozChannels;
+        rate              = audio.mozSampleRate;
+        frameBufferLength = audio.mozFrameBufferLength;
+
+        fft = new FFT(frameBufferLength / channels, rate);
+    }*/
+
     var CANVAS=document.getElementById("canvas");
     CANVAS.width=window.innerWidth;
     CANVAS.height=window.innerHeight;
@@ -21,6 +71,9 @@ var main=function() {
     var old_x, old_y;
 
     var dX=0, dY=0;
+
+
+
     var mouseDown=function(e) {
         drag=true;
         old_x=e.pageX, old_y=e.pageY;
@@ -129,7 +182,7 @@ var main=function() {
     var THETA=0,
         PHI=0;
 
-    LIBS.translateZ(VIEWMATRIX, -50);
+    LIBS.translateZ(VIEWMATRIX, -10);
 
     /*========================= DRAWING ========================= */
     //GL.enable(GL.DEPTH_TEST);
@@ -141,7 +194,7 @@ var main=function() {
 
     //var model = primitives.plane(1,1,45);
     //var model = primitives.triangle(1,1,45, 0.5);
-    var model = primitives.cylinder(1,1,4,0);
+
     //var model = primitives.cone(scaleFactor,scaleFactor,36);
     var vertexBuffer= GL.createBuffer ();
     var facesBuffer = GL.createBuffer ();
@@ -152,8 +205,9 @@ var main=function() {
     var maxCount = 50;
     var minCount = 10;
 
-    var count = 2;
+    var count = 0;
     var up = true;
+    var model;
     var animate=function(time) {
         var dt=time-time_old;
         if (!drag) {
@@ -161,7 +215,7 @@ var main=function() {
             THETA+=dX, PHI+=dY;
         }
         scaleFactor+=0.01;
-        nextStart+=0.01;
+        nextStart+=0.05;
         if(nextStart>0.1){
             if(up){
                 count++;
@@ -171,41 +225,41 @@ var main=function() {
                 up = count<minCount;
             }
 
-            model = primitives.cylinders(0.5,0,count,count);
+            model = primitives.cylinders(0.2,0,count,4,10);
             nextStart = 0;
         }
-
-
 
         LIBS.set_I4(MOVEMATRIX);
         LIBS.rotateY(MOVEMATRIX, THETA);
         LIBS.rotateX(MOVEMATRIX, PHI);
-        //LIBS.scaleX(MOVEMATRIX, scaleFactor);
-        //LIBS.scaleY(MOVEMATRIX, scaleFactor);
+        //LIBS.scaleX(MOVEMATRIX, 1+(oldMagnitude+magnitude)/20);
+        //LIBS.scaleY(MOVEMATRIX, 1+(oldMagnitude+magnitude)/20);
+        //oldMagnitude = magnitude;
 
         time_old=time;
 
         GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height);
         GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
 
-        GL.uniformMatrix4fv(_Pmatrix, false, PROJMATRIX);
-        GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
-        GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
-        GL.uniform3f(_wsLightPosition, 1,1,5);
-        GL.uniform1f(_alpha,1);
+        if(model){
+            GL.uniformMatrix4fv(_Pmatrix, false, PROJMATRIX);
+            GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
+            GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
+            GL.uniform3f(_wsLightPosition, 1,1,5);
+            GL.uniform1f(_alpha,0.6);
 
 
-        GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
-        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(model.vertices), GL.STATIC_DRAW);
-        GL.vertexAttribPointer(_position, 3, GL.FLOAT, false,4*9,0) ;
-        GL.vertexAttribPointer(_color, 3, GL.FLOAT, false,4*9,3*4) ;
-        GL.vertexAttribPointer(_normal, 3, GL.FLOAT, false,4*9,6*4);
+            GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
+            GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(model.vertices), GL.STATIC_DRAW);
+            GL.vertexAttribPointer(_position, 3, GL.FLOAT, false,4*9,0) ;
+            GL.vertexAttribPointer(_color, 3, GL.FLOAT, false,4*9,3*4) ;
+            GL.vertexAttribPointer(_normal, 3, GL.FLOAT, false,4*9,6*4);
 
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, facesBuffer);
-        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(model.faces), GL.STATIC_DRAW);
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, facesBuffer);
+            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(model.faces), GL.STATIC_DRAW);
 
-        GL.drawElements(GL.TRIANGLES, model.faces.length, GL.UNSIGNED_SHORT, 0);
-
+            GL.drawElements(GL.TRIANGLES, model.faces.length, GL.UNSIGNED_SHORT, 0);
+        }
         GL.flush();
 
         window.requestAnimationFrame(animate);

@@ -170,7 +170,7 @@ var primitives = {
         return {vertices: vertices, colors: colors, faces: faces, normals: normals};
     },
 
-    cylinder: function(radius, height, rate){
+    cylinder: function(radius, height, zFactor, rate){
         var vertices = [];
         var coords = [];
         var colors = [];
@@ -179,14 +179,15 @@ var primitives = {
 
         for(var i = 0; i<rate; i++){
             var angle = LIBS.degToRad(360/rate*i);
+            var color = LIBS.hsvToRgb(360/rate*i,100,100);
             var x = Math.sin(angle)*radius;
             var y =  Math.cos(angle)*radius;
             var z = height/2;
             //vertice coords
-            coords.push(x, y, z);
+            coords.push(x, y, z+zFactor);
             colors.push(0, 0,1);
 
-            coords.push(x, y, -1*z);
+            coords.push(x, y, -1*z+zFactor);
             colors.push(1, 0,0);
 
             if(i<rate-1){
@@ -211,21 +212,20 @@ var primitives = {
         return {vertices: vertices, faces: faces};
     },
 
-    cylinders: function(rFactor, hFactor,rateFactor,count){
+    cylinders: function(rFactor, hFactor, zFactor, rateFactor, count){
         var model;
-        var radius = 1;
-        var height = 1
+        var radius = 0.5;
+        var height = 1;
         for(var i = 0; i<count; i++){
             radius += rFactor;
             height += hFactor;
+            var sinus = Math.sin(LIBS.degToRad(zFactor))*10;
             if(!model){
-                model = this.cylinder(radius,height,rateFactor);
+                model = this.cylinder(radius,height,sinus,rateFactor);
             }
             else{
                 var facesLength = model.faces.length;
-                var vertLength = model.vertices.length;
-                var cylinder = this.cylinder(radius,height,rateFactor);
-
+                var cylinder = this.cylinder(radius,height,sinus,rateFactor);
                 for(var vi = 0; vi<cylinder.vertices.length; vi++){
                     model.vertices.push(cylinder.vertices[vi]);
                 }
@@ -236,5 +236,48 @@ var primitives = {
             }
         }
         return model;
+    },
+
+    spiral: function(rStart, rOffset,height,rate,count){
+        var vertices = [];
+                var coords = [];
+                var colors = [];
+                var faces = [];
+                var normals = [];
+                var radius = 0.1;
+                for(var i = 0; i<rate*count; i++){
+
+                    var angle = LIBS.degToRad(360/rate*i);
+                    var color = LIBS.hsvToRgb(360/rate*i,100,100);
+                    var x = Math.sin(angle)*radius;
+                    var y =  Math.cos(angle)*radius;
+                    var z = height/2;
+                    //vertice coords
+                    coords.push(x, y, z);
+                    colors.push(0, 0,1);
+
+                    coords.push(x, y, -1*z);
+                    colors.push(1, 0,0);
+
+                    if(i<rate*count-2){
+                        faces.push(i*2, i*2+1,i*2+2);
+                        faces.push(i*2+2, i*2+1, i*2+3);
+                    }else{
+
+                    }
+                    radius+=rOffset;
+                }
+
+                normals = this.getNormals(coords, faces);
+                var result = [];
+                for(var j = 0; j<coords.length;j+=3){
+                    vertices.push(
+                        coords[j],coords[j+1],coords[j+2],
+                        colors[j],colors[j+1],colors[j+2],
+                        normals[j],normals[j+1],normals[j+2]
+                    );
+                }
+
+                return {vertices: vertices, faces: faces};
     }
 }

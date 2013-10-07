@@ -145,7 +145,7 @@ var main=function() {
             scaleFactor+=0.5;
             //var model = primitives.plane(1,1,45);
             //var model = primitives.triangle(1,1,45, 0.5);
-            var model = primitives.cylinder(scaleFactor,scaleFactor,360);
+            var model = primitives.cylinder(scaleFactor,1,scaleFactor,360);
             //var model = primitives.cone(scaleFactor,scaleFactor,36);
 
             var vertexBuffer= GL.createBuffer ();
