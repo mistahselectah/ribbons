@@ -141,7 +141,7 @@ var main=function() {
     var render = function(count){
         var scaleFactor = 1;
         for(var i = 0; i<count;i++){
-            GL.uniform1f(_alpha, i==0? 1: 1 - i/200);
+            GL.uniform1f(_alpha, i==0? 1: count - i/count);
             scaleFactor+=0.5;
             //var model = primitives.plane(1,1,45);
             //var model = primitives.triangle(1,1,45, 0.5);
