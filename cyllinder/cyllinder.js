@@ -140,33 +140,51 @@ var main=function() {
 
 
     function zOffset(vertices, rate, count, magnitude){
-       for(var j=1;j<=count; j++){
-           for(var i=j*rate; i<j*rate*18; i+=18){
-               vertices[i+2] = j==0?magnitude:magnitude/j;
-               vertices[i+11] = j==0?-1*magnitude:-1*magnitude/j;
+        var verts = vertices;
+        for(var j=1;j<=count; j++){
+           zFactor+= 0.2;
+           for(var i = 0; i<rate*18; i+=18){
+               verts[j*rate*18+i+2] = verts[j*rate*18+i+2]+magnitude/j;
+               verts[j*rate*18+i+11] = verts[j*rate*18+i+11]+magnitude/j;
            }
-       }
-   }
+        }
+
+        return verts;
+    }
 
     var vertexBuffer= GL.createBuffer ();
     var facesBuffer = GL.createBuffer ();
-    var count = 10;
-    var rate = 3;
+    var count = 5;
+    var rate = 4;
     var zFactor = 1;
     var model = primitives.cylinders(0.2,0,rate,count);
 
-    for(var j=1;j<=count; j++){
-       zFactor+= 0.2;
-       for(var i = 0; i<rate*18; i+=18){
-           model.vertices[j*rate*18+i+2] += zFactor;
-           model.vertices[j*rate*18+i+11] += -1*zFactor;
-       }
-    }
+
+    var nextStart = 0;
+    var maxCount = 5;
+    var minCount = -5;
+    var magnitude = 1;
+    var up = true;
+    var verts = model.vertices;
     var animate=function(time) {
         var dt=time-time_old;
         if (!drag) {
             dX*=AMORTIZATION, dY*=AMORTIZATION;
             THETA+=dX, PHI+=dY;
+        }
+
+        nextStart+=0.05;
+        if(nextStart>0.5){
+            if(up){
+                magnitude++;
+                verts = zOffset(model.vertices, rate, count, magnitude)
+                up = magnitude<maxCount;
+            }else{
+                magnitude--;
+                verts = zOffset(model.vertices, rate, count, magnitude)
+                up = magnitude<minCount;
+            }
+            nextStart = 0;
         }
 
         LIBS.set_I4(MOVEMATRIX);
@@ -182,7 +200,7 @@ var main=function() {
         GL.uniform3f(_wsLightPosition, 0,0,5);
 
         GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
-        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(model.vertices), GL.STATIC_DRAW);
+        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(verts), GL.STATIC_DRAW);
 
 
 
