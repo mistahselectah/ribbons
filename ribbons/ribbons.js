@@ -11,11 +11,12 @@ if ( !window.requestAnimationFrame ) {
 
 var main=function() {
 
-    /*var audio = document.getElementById("audio");
+    var audio = document.getElementById("audio");
     audio.mozFrameBufferLength = 1024;
     audio.addEventListener('MozAudioAvailable', audioAvailable, false);
     audio.addEventListener('loadedmetadata', loadedMetadata, false);
     audio.play();
+    audio.repeat = true;
 
     var channels = 2,
         rate,
@@ -58,7 +59,7 @@ var main=function() {
         frameBufferLength = audio.mozFrameBufferLength;
 
         fft = new FFT(frameBufferLength / channels, rate);
-    }*/
+    }
 
     var CANVAS=document.getElementById("canvas");
     CANVAS.width=window.innerWidth;
@@ -146,6 +147,18 @@ var main=function() {
         return shader;
     }
 
+    function sineWave(rate, count){
+
+    }
+
+    function vibration(vertices, rate, count, magnitude){
+        /*if(magnitude){
+            for(var i=0; i<vertices.length; i+=9){
+                vertices[i+2] = magnitude;
+            }
+        }*/
+    }
+
     var shader_vertex=getShader(GL, "light-shader-vs");
     var shader_fragment=getShader( GL, "light-shader-fs");
 
@@ -192,10 +205,6 @@ var main=function() {
     GL.clearColor(0.0, 0.0, 0.0, 0.0);
     GL.clearDepth(1.0);
 
-    //var model = primitives.plane(1,1,45);
-    //var model = primitives.triangle(1,1,45, 0.5);
-
-    //var model = primitives.cone(scaleFactor,scaleFactor,36);
     var vertexBuffer= GL.createBuffer ();
     var facesBuffer = GL.createBuffer ();
 
@@ -207,14 +216,15 @@ var main=function() {
 
     var count = 0;
     var up = true;
-    var model;
+    var oldMagnitude = 0;
+    var model = primitives.cylinders(0.2,0,4,10);
     var animate=function(time) {
         var dt=time-time_old;
         if (!drag) {
             dX*=AMORTIZATION, dY*=AMORTIZATION;
             THETA+=dX, PHI+=dY;
         }
-        scaleFactor+=0.01;
+        /*scaleFactor+=0.01;
         nextStart+=0.05;
         if(nextStart>0.1){
             if(up){
@@ -224,23 +234,22 @@ var main=function() {
                 count--;
                 up = count<minCount;
             }
-
-            model = primitives.cylinders(0.2,0,count,4,10);
             nextStart = 0;
-        }
+        }*/
+
 
         LIBS.set_I4(MOVEMATRIX);
         LIBS.rotateY(MOVEMATRIX, THETA);
         LIBS.rotateX(MOVEMATRIX, PHI);
-        //LIBS.scaleX(MOVEMATRIX, 1+(oldMagnitude+magnitude)/20);
-        //LIBS.scaleY(MOVEMATRIX, 1+(oldMagnitude+magnitude)/20);
-        //oldMagnitude = magnitude;
+        LIBS.scaleX(MOVEMATRIX, 1+(oldMagnitude+magnitude)/20);
+        LIBS.scaleY(MOVEMATRIX, 1+(oldMagnitude+magnitude)/20);
+        oldMagnitude = magnitude;
 
         time_old=time;
 
         GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height);
         GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
-
+        vibration(model.vertices,0,0,magnitude);
         if(model){
             GL.uniformMatrix4fv(_Pmatrix, false, PROJMATRIX);
             GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);

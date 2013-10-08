@@ -170,7 +170,7 @@ var primitives = {
         return {vertices: vertices, colors: colors, faces: faces, normals: normals};
     },
 
-    cylinder: function(radius, height, zFactor, rate){
+    cylinder: function(radius, height, rate){
         var vertices = [];
         var coords = [];
         var colors = [];
@@ -184,11 +184,11 @@ var primitives = {
             var y =  Math.cos(angle)*radius;
             var z = height/2;
             //vertice coords
-            coords.push(x, y, z+zFactor);
-            colors.push(0, 0,1);
+            coords.push(x, y, z);
+            colors.push(color[0], color[1],color[3]);
 
-            coords.push(x, y, -1*z+zFactor);
-            colors.push(1, 0,0);
+            coords.push(x, y, -1*z);
+            colors.push(color[0], color[1],color[3]);
 
             if(i<rate-1){
                 faces.push(i*2, i*2+1,i*2+2);
@@ -212,20 +212,19 @@ var primitives = {
         return {vertices: vertices, faces: faces};
     },
 
-    cylinders: function(rFactor, hFactor, zFactor, rateFactor, count){
+    cylinders: function(rFactor, hFactor, rateFactor, count){
         var model;
         var radius = 0.5;
         var height = 1;
         for(var i = 0; i<count; i++){
             radius += rFactor;
             height += hFactor;
-            var sinus = Math.sin(LIBS.degToRad(zFactor))*10;
             if(!model){
-                model = this.cylinder(radius,height,sinus,rateFactor);
+                model = this.cylinder(radius,height,rateFactor);
             }
             else{
                 var facesLength = model.faces.length;
-                var cylinder = this.cylinder(radius,height,sinus,rateFactor);
+                var cylinder = this.cylinder(radius,height,rateFactor);
                 for(var vi = 0; vi<cylinder.vertices.length; vi++){
                     model.vertices.push(cylinder.vertices[vi]);
                 }
