@@ -12,11 +12,10 @@ if ( !window.requestAnimationFrame ) {
 var main=function() {
 
     var audio = document.getElementById("audio");
-    audio.mozFrameBufferLength = 1024;
+    audio.mozFrameBufferLength = 4096;
     audio.addEventListener('MozAudioAvailable', audioAvailable, false);
     audio.addEventListener('loadedmetadata', loadedMetadata, false);
     audio.play();
-    audio.repeat = true;
 
     var channels = 2,
         rate,
@@ -147,16 +146,37 @@ var main=function() {
         return shader;
     }
 
-    function sineWave(rate, count){
+    function sineWave(vertices, rate, count, time, magnitude){
+        var zOffset =0;
+        var verts = vertices;
+        var elementLength = rate*2*9;
+        for(var i = 0 ;i<count;i++){
+            var angle = LIBS.degToRad(360/count*i+time/1000+magnitude);
+            zOffset = Math.sin(angle);
+            for(var j=i*rate*2; j<elementLength; j+=18){
+                //console.log(zOffset);
+                verts[j+2] = zOffset;
+                //verts[j+11] = vertices[j+11]+zOffset;
+            }
 
+        }
+        return verts;
     }
 
-    function vibration(vertices, rate, count, magnitude){
-        /*if(magnitude){
-            for(var i=0; i<vertices.length; i+=9){
-                vertices[i+2] = magnitude;
+    function zOffset(vertices, rate, count, magnitude){
+        for(var j=0;j<count; j++){
+            for(var i=j*rate; i<j*rate*18; i+=18){
+                vertices[i+2] = j==0?magnitude:magnitude/j;
+                vertices[i+11] = j==0?-1*magnitude:-1*magnitude/j;
             }
-        }*/
+        }
+    }
+
+    function vibration(vertices, rate, count, magnitude, time){
+        for(var i=0; i<vertices.length; i+=18){
+            vertices[i+2] = magnitude;
+            vertices[i+11] = -1*magnitude;
+        }
     }
 
     var shader_vertex=getShader(GL, "light-shader-vs");
@@ -224,9 +244,9 @@ var main=function() {
             dX*=AMORTIZATION, dY*=AMORTIZATION;
             THETA+=dX, PHI+=dY;
         }
-        /*scaleFactor+=0.01;
+        scaleFactor+=0.01;
         nextStart+=0.05;
-        if(nextStart>0.1){
+        if(nextStart>0.5){
             if(up){
                 count++;
                 up = count<maxCount;
@@ -235,31 +255,40 @@ var main=function() {
                 up = count<minCount;
             }
             nextStart = 0;
-        }*/
-
+        }
 
         LIBS.set_I4(MOVEMATRIX);
         LIBS.rotateY(MOVEMATRIX, THETA);
         LIBS.rotateX(MOVEMATRIX, PHI);
-        LIBS.scaleX(MOVEMATRIX, 1+(oldMagnitude+magnitude)/20);
+        /*LIBS.scaleX(MOVEMATRIX, 1+(oldMagnitude+magnitude)/20);
         LIBS.scaleY(MOVEMATRIX, 1+(oldMagnitude+magnitude)/20);
-        oldMagnitude = magnitude;
+        oldMagnitude = magnitude;*/
 
         time_old=time;
 
         GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height);
         GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
-        vibration(model.vertices,0,0,magnitude);
+        GL.uniformMatrix4fv(_Pmatrix, false, PROJMATRIX);
+        GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
+        GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
+        GL.uniform3f(_wsLightPosition, 1,1,5);
+        GL.uniform1f(_alpha,0.6);
+
         if(model){
-            GL.uniformMatrix4fv(_Pmatrix, false, PROJMATRIX);
-            GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
-            GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
-            GL.uniform3f(_wsLightPosition, 1,1,5);
-            GL.uniform1f(_alpha,0.6);
+            if(nextStart>0.1 && magnitude>0.3){
+                zOffset(model.vertices, model.rate, model.count, magnitude*10);
+                var el =  $("#magnitude span");
+                el.after('<span>'+magnitude+'<br/></span>');
+                $('#magnitude').children().slice(15).remove();
 
+                GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
+                GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(model.vertices), GL.STATIC_DRAW);
 
-            GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
-            GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(model.vertices), GL.STATIC_DRAW);
+            }else{
+                GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
+                GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(model.vertices), GL.STATIC_DRAW);
+            }
+
             GL.vertexAttribPointer(_position, 3, GL.FLOAT, false,4*9,0) ;
             GL.vertexAttribPointer(_color, 3, GL.FLOAT, false,4*9,3*4) ;
             GL.vertexAttribPointer(_normal, 3, GL.FLOAT, false,4*9,6*4);

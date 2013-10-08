@@ -234,6 +234,8 @@ var primitives = {
                 }
             }
         }
+        model.rate = rateFactor;
+        model.count = count;
         return model;
     },
 

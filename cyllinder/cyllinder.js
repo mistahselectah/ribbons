@@ -139,32 +139,29 @@ var main=function() {
     var time_old=0;
 
 
-    var render = function(count){
-        var scaleFactor = 1;
-        for(var i = 0; i<count;i++){
-            scaleFactor+=0.5;
-            //var model = primitives.plane(1,1,45);
-            //var model = primitives.triangle(1,1,45, 0.5);
-            var model = primitives.cylinder(scaleFactor,1,scaleFactor,360);
-            //var model = primitives.cone(scaleFactor,scaleFactor,36);
+    function zOffset(vertices, rate, count, magnitude){
+       for(var j=1;j<=count; j++){
+           for(var i=j*rate; i<j*rate*18; i+=18){
+               vertices[i+2] = j==0?magnitude:magnitude/j;
+               vertices[i+11] = j==0?-1*magnitude:-1*magnitude/j;
+           }
+       }
+   }
 
-            var vertexBuffer= GL.createBuffer ();
-            GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
-            GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(model.vertices), GL.STATIC_DRAW);
+    var vertexBuffer= GL.createBuffer ();
+    var facesBuffer = GL.createBuffer ();
+    var count = 10;
+    var rate = 3;
+    var zFactor = 1;
+    var model = primitives.cylinders(0.2,0,rate,count);
 
-            GL.vertexAttribPointer(_position, 3, GL.FLOAT, false,4*9,0) ;
-            GL.vertexAttribPointer(_color, 3, GL.FLOAT, false,4*9,3*4) ;
-            GL.vertexAttribPointer(_normal, 3, GL.FLOAT, false,4*9,6*4);
-
-
-            var facesBuffer = GL.createBuffer ();
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, facesBuffer);
-            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(model.faces), GL.STATIC_DRAW);
-
-            GL.drawElements(GL.TRIANGLES, model.faces.length, GL.UNSIGNED_SHORT, 0);
-        }
+    for(var j=1;j<=count; j++){
+       zFactor+= 0.2;
+       for(var i = 0; i<rate*18; i+=18){
+           model.vertices[j*rate*18+i+2] += zFactor;
+           model.vertices[j*rate*18+i+11] += -1*zFactor;
+       }
     }
-
     var animate=function(time) {
         var dt=time-time_old;
         if (!drag) {
@@ -184,7 +181,19 @@ var main=function() {
         GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
         GL.uniform3f(_wsLightPosition, 0,0,5);
 
-        render(10);
+        GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
+        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(model.vertices), GL.STATIC_DRAW);
+
+
+
+        GL.vertexAttribPointer(_position, 3, GL.FLOAT, false,4*9,0) ;
+        GL.vertexAttribPointer(_color, 3, GL.FLOAT, false,4*9,3*4) ;
+        GL.vertexAttribPointer(_normal, 3, GL.FLOAT, false,4*9,6*4);
+
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, facesBuffer);
+        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(model.faces), GL.STATIC_DRAW);
+
+        GL.drawElements(GL.TRIANGLES, model.faces.length, GL.UNSIGNED_SHORT, 0);
 
         GL.flush();
 
