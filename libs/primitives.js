@@ -248,16 +248,16 @@ var primitives = {
                 for(var i = 0; i<rate*count; i++){
 
                     var angle = LIBS.degToRad(360/rate*i);
-                    var color = LIBS.hsvToRgb(360/rate*i,100,100);
+                    var color = LIBS.hsvToRgb(360*i,100,100);
                     var x = Math.sin(angle)*radius;
                     var y =  Math.cos(angle)*radius;
                     var z = height/2;
                     //vertice coords
                     coords.push(x, y, z);
-                    colors.push(0, 0,1);
+                    colors.push(color[0], color[1],color[3]);
 
                     coords.push(x, y, -1*z);
-                    colors.push(1, 0,0);
+                    colors.push(color[0], color[1],color[3]);
 
                     if(i<rate*count-2){
                         faces.push(i*2, i*2+1,i*2+2);
