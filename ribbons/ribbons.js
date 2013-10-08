@@ -164,12 +164,16 @@ var main=function() {
     }
 
     function zOffset(vertices, rate, count, magnitude){
-        for(var j=0;j<count; j++){
-            for(var i=j*rate; i<j*rate*18; i+=18){
-                vertices[i+2] = j==0?magnitude:magnitude/j;
-                vertices[i+11] = j==0?-1*magnitude:-1*magnitude/j;
+        var verts = vertices;
+        for(var j=1;j<=count; j++){
+            for(var i = 0; i<rate*18; i+=18){
+                var sin = Math.sin(LIBS.degToRad(360/j*magnitude));
+                verts[j*rate*18+i+2] = sin;
+                verts[j*rate*18+i+11] = -1*sin;
             }
         }
+
+        return verts;
     }
 
     function vibration(vertices, rate, count, magnitude, time){
@@ -234,10 +238,12 @@ var main=function() {
     var maxCount = 50;
     var minCount = 10;
 
+    var rate = 120;
+    var elCount = 10;
     var count = 0;
     var up = true;
     var oldMagnitude = 0;
-    var model = primitives.cylinders(0.2,0,4,10);
+    var model = primitives.cylinders(1,2,rate,elCount);
     var animate=function(time) {
         var dt=time-time_old;
         if (!drag) {
@@ -260,9 +266,6 @@ var main=function() {
         LIBS.set_I4(MOVEMATRIX);
         LIBS.rotateY(MOVEMATRIX, THETA);
         LIBS.rotateX(MOVEMATRIX, PHI);
-        /*LIBS.scaleX(MOVEMATRIX, 1+(oldMagnitude+magnitude)/20);
-        LIBS.scaleY(MOVEMATRIX, 1+(oldMagnitude+magnitude)/20);
-        oldMagnitude = magnitude;*/
 
         time_old=time;
 
@@ -271,18 +274,21 @@ var main=function() {
         GL.uniformMatrix4fv(_Pmatrix, false, PROJMATRIX);
         GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
         GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
-        GL.uniform3f(_wsLightPosition, 1,1,5);
+        GL.uniform3f(_wsLightPosition, 10,10,0);
         GL.uniform1f(_alpha,0.6);
 
         if(model){
-            if(nextStart>0.1 && magnitude>0.3){
-                zOffset(model.vertices, model.rate, model.count, magnitude*10);
-                var el =  $("#magnitude span");
+            if(nextStart>0.1){
+                LIBS.scaleX(MOVEMATRIX, 1+magnitude);
+                LIBS.scaleY(MOVEMATRIX, 1+magnitude);
+                var verts = zOffset(model.vertices,rate,elCount, magnitude);
+                var el =  $("#magnitude span#max");
+                if(magnitude>el.find('b').text()){ el.find('b').text(magnitude)}
                 el.after('<span>'+magnitude+'<br/></span>');
                 $('#magnitude').children().slice(15).remove();
 
                 GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
-                GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(model.vertices), GL.STATIC_DRAW);
+                GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(verts), GL.STATIC_DRAW);
 
             }else{
                 GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);

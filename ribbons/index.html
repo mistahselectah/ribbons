@@ -68,7 +68,7 @@
             // Light emission properties
         	// You probably want to put them as uniforms
         	vec3 lColor = vec3(0.5,0.5,0.5);
-        	float lPower = 50.0;
+        	float lPower = 1000.0;
 
         	// Material properties
         	vec3 MaterialDiffuseColor = vColor;
@@ -114,7 +114,7 @@
     <canvas id='canvas' style='position: absolute; background-color: black;'></canvas>
     <audio id="audio" style="position:absolute; top: 5px;" controls autoplay loop src="../resource/first_snow.mp3"></audio>
     <p id="magnitude" style="padding:5px 10px; overflow:hidden;color: white; position: absolute; top: 30px; display:block; background: transparent;border: 1px solid white;border-radius: 5px;height:400px;width:300px;">
-        <span>MAGNITUDE<br/></span>
+        <span id="max">MAGNITUDE: <b>0</b> <br/></span>
     </p>
 </body>
 </html>

@@ -148,7 +148,6 @@ var main=function() {
                verts[j*rate*18+i+11] = verts[j*rate*18+i+11]+magnitude/j;
            }
         }
-
         return verts;
     }
 

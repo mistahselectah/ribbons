@@ -185,10 +185,12 @@ var primitives = {
             var z = height/2;
             //vertice coords
             coords.push(x, y, z);
-            colors.push(color[0], color[1],color[3]);
+            //colors.push(color[0], color[1],color[3]);
+            colors.push(0, 0,1);
 
             coords.push(x, y, -1*z);
-            colors.push(color[0], color[1],color[3]);
+            //colors.push(color[0], color[1],color[3]);
+            colors.push(1, 0,0);
 
             if(i<rate-1){
                 faces.push(i*2, i*2+1,i*2+2);
