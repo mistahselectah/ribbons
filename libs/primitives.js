@@ -243,44 +243,54 @@ var primitives = {
 
     spiral: function(rStart, rOffset,height,rate,count){
         var vertices = [];
-                var coords = [];
-                var colors = [];
-                var faces = [];
-                var normals = [];
-                var radius = 0.1;
-                for(var i = 0; i<rate*count; i++){
+        var coords = [];
+        var colors = [];
+        var faces = [];
+        var normals = [];
+        var radius = 0.1;
+        for(var i = 0; i<rate*count; i++){
 
-                    var angle = LIBS.degToRad(360/rate*i);
-                    var color = LIBS.hsvToRgb(360*i,100,100);
-                    var x = Math.sin(angle)*radius;
-                    var y =  Math.cos(angle)*radius;
-                    var z = height/2;
-                    //vertice coords
-                    coords.push(x, y, z);
-                    colors.push(color[0], color[1],color[3]);
+            var angle = LIBS.degToRad(360/rate*i);
+            var color = LIBS.hsvToRgb(360*i,100,100);
+            var x = Math.sin(angle)*radius;
+            var y =  Math.cos(angle)*radius;
+            var z = height/2;
+            //vertice coords
+            coords.push(x, y, z);
+            colors.push(color[0], color[1],color[3]);
 
-                    coords.push(x, y, -1*z);
-                    colors.push(color[0], color[1],color[3]);
+            coords.push(x, y, -1*z);
+            colors.push(color[0], color[1],color[3]);
 
-                    if(i<rate*count-2){
-                        faces.push(i*2, i*2+1,i*2+2);
-                        faces.push(i*2+2, i*2+1, i*2+3);
-                    }else{
+            if(i<rate*count-2){
+                faces.push(i*2, i*2+1,i*2+2);
+                faces.push(i*2+2, i*2+1, i*2+3);
+            }else{
 
-                    }
-                    radius+=rOffset;
-                }
+            }
+            radius+=rOffset;
+        }
 
-                normals = this.getNormals(coords, faces);
-                var result = [];
-                for(var j = 0; j<coords.length;j+=3){
-                    vertices.push(
-                        coords[j],coords[j+1],coords[j+2],
-                        colors[j],colors[j+1],colors[j+2],
-                        normals[j],normals[j+1],normals[j+2]
-                    );
-                }
+        normals = this.getNormals(coords, faces);
+        var result = [];
+        for(var j = 0; j<coords.length;j+=3){
+            vertices.push(
+                coords[j],coords[j+1],coords[j+2],
+                colors[j],colors[j+1],colors[j+2],
+                normals[j],normals[j+1],normals[j+2]
+            );
+        }
 
-                return {vertices: vertices, faces: faces};
+        return {vertices: vertices, faces: faces};
+    },
+
+    sphere: function(radius, l, n){
+        var vertices = [];
+        var coords = [];
+        var colors = [];
+        var faces = [];
+        var normals = [];
+        var radius = 0.1;
+
     }
 }
