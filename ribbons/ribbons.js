@@ -146,23 +146,6 @@ var main=function() {
         return shader;
     }
 
-    function sineWave(vertices, rate, count, time, magnitude){
-        var zOffset =0;
-        var verts = vertices;
-        var elementLength = rate*2*9;
-        for(var i = 0 ;i<count;i++){
-            var angle = LIBS.degToRad(360/count*i+time/1000+magnitude);
-            zOffset = Math.sin(angle);
-            for(var j=i*rate*2; j<elementLength; j+=18){
-                //console.log(zOffset);
-                verts[j+2] = zOffset;
-                //verts[j+11] = vertices[j+11]+zOffset;
-            }
-
-        }
-        return verts;
-    }
-
     function zOffset(vertices, rate, count, magnitude){
         var verts = vertices;
         for(var j=1;j<=count; j++){
@@ -172,15 +155,7 @@ var main=function() {
                 //verts[j*rate*18+i+11] = -1*sin;
             }
         }
-
         return verts;
-    }
-
-    function vibration(vertices, rate, count, magnitude, time){
-        for(var i=0; i<vertices.length; i+=18){
-            vertices[i+2] = magnitude;
-            vertices[i+11] = -1*magnitude;
-        }
     }
 
     var shader_vertex=getShader(GL, "light-shader-vs");
@@ -208,8 +183,6 @@ var main=function() {
 
     GL.useProgram(SHADER_PROGRAM);
 
-    /*========================= THE MODEL ========================= */
-
     /*========================= MATRIX ========================= */
 
     var PROJMATRIX=LIBS.get_projection(40, CANVAS.width/CANVAS.height, 1, 100);
@@ -233,16 +206,9 @@ var main=function() {
     var facesBuffer = GL.createBuffer ();
 
     var time_old=0;
-    var scaleFactor = 1;
-    var nextStart = 0;
-    var maxCount = 50;
-    var minCount = 10;
-
     var rate = 120;
-    var elCount = 100;
-    var count = 0;
-    var up = true;
-    var oldMagnitude = 0;
+    var elCount = 5;
+
     var model = primitives.cylinders(1,1,rate,elCount);
     var animate=function(time) {
 
@@ -250,18 +216,6 @@ var main=function() {
         if (!drag) {
             dX*=AMORTIZATION, dY*=AMORTIZATION;
             THETA+=dX, PHI+=dY;
-        }
-        scaleFactor+=0.01;
-        nextStart+=0.05;
-        if(nextStart>0.5){
-            if(up){
-                count++;
-                up = count<maxCount;
-            }else{
-                count--;
-                up = count<minCount;
-            }
-            nextStart = 0;
         }
 
         LIBS.set_I4(MOVEMATRIX);
@@ -276,37 +230,27 @@ var main=function() {
         GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
         GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
         GL.uniform3f(_wsLightPosition, 10,10,0);
-        GL.uniform1f(_alpha,0.6);
+        GL.uniform1f(_alpha,0.8);
 
-
-        if(nextStart>0.5){
-            if(magnitude){
-                model = primitives.cylinders(1,1,magnitude*100<4?4:magnitude*100,magnitude*10<10?10:magnitude*10);
-                LIBS.scaleX(MOVEMATRIX, 1+magnitude);
-                LIBS.scaleY(MOVEMATRIX, 1+magnitude);
-                //var verts = zOffset(model.vertices,rate,elCount, magnitude*magnitude);
-                var el =  $("#magnitude span#max");
-                if(magnitude>el.find('b').text()){ el.find('b').text(magnitude)}
-                el.after('<span>'+magnitude+'<br/></span>');
-                $('#magnitude').children().slice(15).remove();
-
-                GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
-                GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(model.vertices), GL.STATIC_DRAW);
-
-            }else{
-                GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
-                GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(model.vertices), GL.STATIC_DRAW);
-            }
-
-            GL.vertexAttribPointer(_position, 3, GL.FLOAT, false,4*9,0) ;
-            GL.vertexAttribPointer(_color, 3, GL.FLOAT, false,4*9,3*4) ;
-            GL.vertexAttribPointer(_normal, 3, GL.FLOAT, false,4*9,6*4);
-
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, facesBuffer);
-            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(model.faces), GL.STATIC_DRAW);
-
-            GL.drawElements(GL.TRIANGLES, model.faces.length, GL.UNSIGNED_SHORT, 0);
+        if(magnitude){
+            var el =  $("#magnitude span#max");
+            if(magnitude>el.find('b').text()){ el.find('b').text(magnitude)}
+            el.after('<span>'+magnitude+'<br/></span>');
+            $('#magnitude').children().slice(15).remove();
         }
+
+        GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
+        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(model.vertices), GL.STATIC_DRAW);
+
+        GL.vertexAttribPointer(_position, 3, GL.FLOAT, false,4*9,0) ;
+        GL.vertexAttribPointer(_color, 3, GL.FLOAT, false,4*9,3*4) ;
+        GL.vertexAttribPointer(_normal, 3, GL.FLOAT, false,4*9,6*4);
+
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, facesBuffer);
+        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(model.faces), GL.STATIC_DRAW);
+
+        GL.drawElements(GL.TRIANGLES, model.faces.length, GL.UNSIGNED_SHORT, 0);
+
         GL.flush();
 
         window.requestAnimationFrame(animate);

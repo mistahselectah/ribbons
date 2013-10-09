@@ -3,8 +3,11 @@
 <html>
 <head>
     <meta charset='utf-8'/>
+    <script type="text/javascript" src="../libs/jquery-1.10.2.min.js"></script>
     <script type="text/javascript" src="../libs/libs.js"></script>
     <script type="text/javascript" src="../libs/primitives.js"></script>
+    <script type="text/javascript" src="../libs/fft.js"></script>
+    <script type="text/javascript" src="../libs/beatdetektor.js"></script>
     <script type="text/javascript" src="cyllinder.js"></script>
 
     <script id="light-shader-vs" type="x-shader/x-vertex">
@@ -107,5 +110,17 @@
 </head>
 <body style='margin:0px' onload='main()'>
 <canvas id='canvas' style='position: absolute; background-color: black;'></canvas>
+<audio id="audio" style="position:absolute; top: 5px;" controls autoplay loop src="../resource/aurapporo.mp3"></audio>
+<div id="info" style="padding:5px 10px; overflow:hidden;color: white; position: absolute; top: 30px; display:block; background: transparent;border: 1px solid white;border-radius: 5px;height:400px;width:300px;">
+    <span id="fps"></span><br/>
+    <span id="bpm"></span><br/>
+    <span id="time"></span><br/>
+
+    PEAKS:
+    <ol id="peaks">
+    </ol>
+
+
+</div>
 </body>
 </html>
