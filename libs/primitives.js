@@ -32,22 +32,22 @@ var primitives = {
         return [vertArray[index],vertArray[index+1],vertArray[index+2]];
     },
 
-    getNormals: function(vertices, faces){
+    getNormals: function(coords, faces){
         var count = 1;
         var normals = [];
         var a, b, c, normal;
         for(var j = 0; j<faces.length; j++){
             switch(count){
                 case 1:
-                    a = this.getCoords(vertices, j);
+                    a = this.getCoords(coords, j);
                     count++;
                     break;
                 case 2:
-                    b = this.getCoords(vertices, j);
+                    b = this.getCoords(coords, j);
                     count++;
                     break
                 case 3:
-                    c = this.getCoords(vertices, j);
+                    c = this.getCoords(coords, j);
                     normal = this.getNormal(a,b,c);
                     normals.push(normal[0],normal[1],normal[2]);
                     normals.push(normal[0],normal[1],normal[2]);
@@ -120,6 +120,145 @@ var primitives = {
 
     },
 
+    icosahedron: function(radius){
+        var sqr5 = 2.2361;
+        var phi = (1.0 + sqr5) * 0.5;
+        
+        // Golden ratio - the ratio of edgelength to radius
+        var ratio = Math.sqrt( 10.0 + (2.0 * sqr5)) / (4.0 * phi);
+        var ia = (radius / ratio) * 0.5;
+        var ib = (radius / ratio) / (2.0 * phi);
+        
+        var coords = [
+            0,(ib),-1*(ia),
+            (ib), (ia), 0,
+            -1*(ib), (ia), 0,
+            0, (ib), (ia),
+            0,-1*(ib), (ia),
+            -1*(ia), 0, (ib),
+            0,-1*(ib),-1*(ia),
+            ia, 0,-1*(ib),
+            ia, 0, ib,
+            -1*(ia), 0,-1*(ib),
+            ib, -1*(ia),0,
+            -1*(ib), -1*(ia),0
+        ];
+
+        var colors = [];
+        for(var i=0;i<coords.length;i+=3){
+
+            colors.push(0,1,1);
+            colors.push(1,1,0);
+            colors.push(0,1,0);
+        }
+
+        var faces = [
+            0, 1, 2,
+            3, 2, 1,
+            3, 4, 5,
+            3, 8, 4,
+            0, 6, 7,
+            0, 9, 6,
+            4, 10, 11,
+            6, 11, 10,
+            2, 5, 9,
+            11, 9, 5,
+            1, 7, 8,
+            10, 8, 7,
+            3, 5, 2,
+            3, 1, 8,
+            0, 2, 9,
+            0, 7, 1,
+            6, 9, 11,
+            6, 10, 7,
+            4, 11, 5,
+            4, 8, 10
+        ];
+
+        var normals = this.getNormals(coords,faces);
+        var vertices = [];
+        for(var j = 0; j<coords.length;j+=3){
+            vertices.push(
+                coords[j],coords[j+1],coords[j+2],
+                colors[j],colors[j+1],colors[j+2],
+                normals[j],normals[j+1],normals[j+2]
+            );
+        }
+        return {vertices: vertices, faces: faces};
+                                  
+    },
+
+    goldenRectangles: function(a){
+        var vertices = [];
+        var coords = [];
+        var colors = [];
+        var faces = [];
+        var normals = [];
+        var b,phi;
+        phi = (1 + Math.sqrt(5))/2;
+        b = a/phi;
+
+
+        coords.push(a/2*-1,b/2,0);
+        colors.push(0,0,1);
+
+        coords.push(a/2,b/2,0);
+        colors.push(0,0,1);
+
+        coords.push(a/2,b/2*-1,0);
+        colors.push(1,0,0);
+
+        coords.push(a/2*-1,b/2*-1,0);
+        colors.push(1,0,0);
+
+        faces.push(0,1,2,2,3,0);
+
+        coords.push(0,a/2*-1,b/2);
+        colors.push(0,1,0);
+
+        coords.push(0, a/2,b/2);
+        colors.push(0,1,0);
+
+        coords.push(0, a/2,b/2*-1);
+        colors.push(1,1,0);
+
+        coords.push(0, a/2*-1,b/2*-1);
+        colors.push(1,1,0);
+
+
+        faces.push(4,5,6,6,7,4);
+
+        coords.push(b/2, 0,a/2*-1);
+        colors.push(0,1,0);
+
+        coords.push(b/2, 0, a/2);
+        colors.push(0,1,0);
+
+        coords.push(b/2*-1, 0, a/2);
+        colors.push(1,1,0);
+
+        coords.push(b/2*-1, 0, a/2*-1);
+        colors.push(1,1,0);
+
+
+        faces.push(8,9,10,10,11,8);
+
+        normals = this.getNormals(coords,faces);
+
+        for(var j = 0; j<coords.length;j+=3){
+            vertices.push(
+                coords[j],coords[j+1],coords[j+2],
+                colors[j],colors[j+1],colors[j+2],
+                normals[j],normals[j+1],normals[j+2]
+            );
+        }
+
+        return {vertices: vertices, faces: faces};
+
+
+
+    },
+
     triangle: function(lA,lB,angle, z){
         var x1, x2, y1, y2;
         var vertices = [];
@@ -149,10 +288,11 @@ var primitives = {
 
     cone: function(radius, height, rate){
         var vertices = [];
+        var coords = [];
         var colors = [];
         var faces = [];
         var normals = [];
-        vertices.push(0,0,height/2);
+        coords.push(0,0,height/2);
         colors.push(0,0,1)
         var z = -1*height/2;
         for(var i = 0; i<rate; i++){
@@ -160,14 +300,22 @@ var primitives = {
             var x = Math.sin(angle)*radius;
             var y =  Math.cos(angle)*radius;
             //vertice coords
-            vertices.push(x, y, z);
+            coords.push(x, y, z);
             //color for vertice
             colors.push(1, 0,0);
             faces.push(0, i+1,i<rate-1?i+2:1);
         }
-        this.pushNormals(vertices, faces, normals);
+        normals = this.getNormals(coords, faces);
 
-        return {vertices: vertices, colors: colors, faces: faces, normals: normals};
+        for(var j = 0; j<coords.length;j+=3){
+            vertices.push(
+                coords[j],coords[j+1],coords[j+2],
+                colors[j],colors[j+1],colors[j+2],
+                normals[j],normals[j+1],normals[j+2]
+            );
+        }
+
+        return {vertices: vertices, faces: faces};
     },
 
     cylinder: function(radius, height, rate){
@@ -202,7 +350,7 @@ var primitives = {
         }
 
         normals = this.getNormals(coords, faces);
-        var result = [];
+
         for(var j = 0; j<coords.length;j+=3){
             vertices.push(
                 coords[j],coords[j+1],coords[j+2],
@@ -272,7 +420,7 @@ var primitives = {
         }
 
         normals = this.getNormals(coords, faces);
-        var result = [];
+
         for(var j = 0; j<coords.length;j+=3){
             vertices.push(
                 coords[j],coords[j+1],coords[j+2],
@@ -284,13 +432,14 @@ var primitives = {
         return {vertices: vertices, faces: faces};
     },
 
-    sphere: function(radius, l, n){
+    sphere: function(radius, smoothness){
+
         var vertices = [];
-        var coords = [];
+        var coords = this.icosahedronCoords(radius);
         var colors = [];
         var faces = [];
         var normals = [];
-        var radius = 0.1;
+
 
     }
 }

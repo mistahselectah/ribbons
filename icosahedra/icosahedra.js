@@ -11,57 +11,6 @@ if ( !window.requestAnimationFrame ) {
 
 var main=function() {
 
-    var audio = document.getElementById("audio");
-    audio.mozFrameBufferLength = 2048;
-    audio.addEventListener('MozAudioAvailable', audioAvailable, false);
-    audio.addEventListener('loadedmetadata', loadedMetadata, false);
-    audio.play();
-
-    var channels = 2,
-        rate,
-        frameBufferLength,
-        fft,
-        magnitude;
-
-    channels          = audio.mozChannels;
-    rate              = audio.mozSampleRate;
-    frameBufferLength = audio.mozFrameBufferLength;
-
-    fft = new FFT(frameBufferLength / channels, rate);
-
-    var beatDetector = new BeatDetektor(50,99);
-
-    function audioAvailable(event) {
-        var fb = event.frameBuffer,
-            t  = event.time,
-            signal = new Float32Array(fb.length / channels);
-
-
-        for (var i = 0, fbl = frameBufferLength / 2; i < fbl; i++ ) {
-          // Assuming interlaced stereo channels,
-          // need to split and merge into a stero-mix mono signal
-          signal[i] = (fb[2*i] + fb[2*i+1]) / 2;
-        }
-
-        fft.forward(signal);
-
-        // Clear the canvas before drawing spectrum
-
-        for (var i = 0; i < fft.spectrum.length; i++ ) {
-          // multiply spectrum by a zoom value
-          magnitude = fft.spectrum[i] * 4000;
-        }
-    }
-
-
-    function loadedMetadata() {
-        channels          = audio.mozChannels;
-        rate              = audio.mozSampleRate;
-        frameBufferLength = audio.mozFrameBufferLength;
-
-        fft = new FFT(frameBufferLength / channels, rate);
-    }
-
     var CANVAS=document.getElementById("canvas");
     CANVAS.width=window.innerWidth;
     CANVAS.height=window.innerHeight;
@@ -189,86 +138,21 @@ var main=function() {
     GL.clearDepth(1.0);
     var time_old=0;
 
-    function zOffset(vertices, rate, index, magnitude){
-       for(var i = 0; i<rate*18; i+=18){
-           vertices[index*rate*18+i+2]  = magnitude;
-           //vertices[index*rate*18+i+11] = -1*magnitude/5;
-       }
-    }
-
-    function colorOffset(vertices, rate, index, sinTable){
-       for(var i = 3; i<rate*18; i+=18){
-           vertices[index*rate*18+i]    = LIBS.hsvToRgb(sinTable[index*rate*18+i]);
-           vertices[index*rate*18+i+1]  = LIBS.hsvToRgb(sinTable[index*rate*18+i+1]);
-           vertices[index*rate*18+i+2]  = LIBS.hsvToRgb(sinTable[index*rate*18+i+2]);
-           vertices[index*rate*18+i+11]    = LIBS.hsvToRgb(sinTable[index*rate*18+i+11]);
-           vertices[index*rate*18+i+1+11]  = LIBS.hsvToRgb(sinTable[index*rate*18+i+11+1]);
-           vertices[index*rate*18+i+2+11]  = LIBS.hsvToRgb(sinTable[index*rate*18+i+11+2]);
-       }
-    }
 
     var vertexBuffer= GL.createBuffer ();
     var facesBuffer = GL.createBuffer ();
-    var count = 32;
-    var rate = 8;
-    var zFactor = 1;
-    var model = primitives.cylinders(0.5,0.2,rate,count);
-    var itemIndex = 0;
-    var fpsTime=0;
-    var fpsFrames=0;
-    var fpsEl = $("#fps");
-    var bpmEl = $("#bpm");
-    var peaks = $("#peaks");
-    var timeEl = $("#time");
+
+
+    var model = primitives.icosahedron(2);
+
     var animate=function(time) {
 
         var dt=time-time_old;
-        if(!beatDetector.win_bpm_int)
-            beatDetector.process(Math.round(audio.currentTime),fft.spectrum);
-
-        fpsTime+=dt;
-        fpsFrames++;
-        if (fpsTime>1000) {
-            var fps=1000 * fpsFrames/fpsTime;
-            fpsEl.text("FPS: "+Math.round(fps));
-            bpmEl.text("BPM: "+beatDetector.win_bpm_int/10);
-            timeEl.text("TIME: "+Math.round(audio.currentTime));
-            fpsTime = fpsFrames = 0;
-        }
-        var vertices = model.vertices;
-        if(magnitude){
-            if(magnitude>1){
-                peaks.prepend('<li>'+magnitude+'</li>')
-            }
-            peaks.children().slice(10).remove();
-            zOffset(vertices,rate,itemIndex,magnitude);
-            //colorOffset(vertices,rate,itemIndex,fft.sinTable);
-            if(itemIndex<count){
-                itemIndex++;
-            }else{
-                itemIndex = 0;
-            }
-
-
-        }
-
 
         if (!drag) {
             dX*=AMORTIZATION, dY*=AMORTIZATION;
             THETA+=dX, PHI+=dY;
         }
-
-        /*nextStart+=0.05;
-        if(nextStart>0.5){
-            if(up){
-                magnitude++;
-                up = magnitude<maxCount;
-            }else{
-                magnitude--;
-                up = magnitude<minCount;
-            }
-            nextStart = 0;
-        }*/
 
         LIBS.set_I4(MOVEMATRIX);
         LIBS.rotateY(MOVEMATRIX, THETA);
@@ -283,7 +167,7 @@ var main=function() {
         GL.uniform3f(_wsLightPosition, 0,0,5);
 
         GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
-        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(vertices), GL.STATIC_DRAW);
+        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(model.vertices), GL.STATIC_DRAW);
 
 
 

@@ -80,7 +80,7 @@ var main=function() {
 
     GL.useProgram(SHADER_PROGRAM);
 
-    var model = primitives.cylinders(0.5,0,4,2);
+    var model = primitives.icosahedron(2);
 
     var CUBE_VERTEX= GL.createBuffer ();
     GL.bindBuffer(GL.ARRAY_BUFFER, CUBE_VERTEX);
