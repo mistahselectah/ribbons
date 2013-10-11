@@ -120,73 +120,6 @@ var primitives = {
 
     },
 
-    icosahedron: function(radius){
-        var sqr5 = 2.2361;
-        var phi = (1.0 + sqr5) * 0.5;
-        
-        // Golden ratio - the ratio of edgelength to radius
-        var ratio = Math.sqrt( 10.0 + (2.0 * sqr5)) / (4.0 * phi);
-        var ia = (radius / ratio) * 0.5;
-        var ib = (radius / ratio) / (2.0 * phi);
-        
-        var coords = [
-            0,(ib),-1*(ia),
-            (ib), (ia), 0,
-            -1*(ib), (ia), 0,
-            0, (ib), (ia),
-            0,-1*(ib), (ia),
-            -1*(ia), 0, (ib),
-            0,-1*(ib),-1*(ia),
-            ia, 0,-1*(ib),
-            ia, 0, ib,
-            -1*(ia), 0,-1*(ib),
-            ib, -1*(ia),0,
-            -1*(ib), -1*(ia),0
-        ];
-
-        var colors = [];
-        for(var i=0;i<coords.length;i+=3){
-
-            colors.push(0,1,1);
-            colors.push(1,1,0);
-            colors.push(0,1,0);
-        }
-
-        var faces = [
-            0, 1, 2,
-            3, 2, 1,
-            3, 4, 5,
-            3, 8, 4,
-            0, 6, 7,
-            0, 9, 6,
-            4, 10, 11,
-            6, 11, 10,
-            2, 5, 9,
-            11, 9, 5,
-            1, 7, 8,
-            10, 8, 7,
-            3, 5, 2,
-            3, 1, 8,
-            0, 2, 9,
-            0, 7, 1,
-            6, 9, 11,
-            6, 10, 7,
-            4, 11, 5,
-            4, 8, 10
-        ];
-
-        var normals = this.getNormals(coords,faces);
-        var vertices = [];
-        for(var j = 0; j<coords.length;j+=3){
-            vertices.push(
-                coords[j],coords[j+1],coords[j+2],
-                colors[j],colors[j+1],colors[j+2],
-                normals[j],normals[j+1],normals[j+2]
-            );
-        }
-        return {vertices: vertices, faces: faces};
-                                  
-    },
 
     goldenRectangles: function(a){
         var vertices = [];
@@ -388,6 +321,100 @@ var primitives = {
         model.count = count;
         return model;
     },
+
+    icosahedron: function(radius){
+        var sqr5 = 2.2361;
+        var phi = (1.0 + sqr5) * 0.5;
+
+        // Golden ratio - the ratio of edgelength to radius
+        var ratio = Math.sqrt( 10.0 + (2.0 * sqr5)) / (4.0 * phi);
+        var ia = (radius / ratio) * 0.5;
+        var ib = (radius / ratio) / (2.0 * phi);
+
+        var coords = [
+            0,(ib),-1*(ia),
+            (ib), (ia), 0,
+            -1*(ib), (ia), 0,
+            0, (ib), (ia),
+            0,-1*(ib), (ia),
+            -1*(ia), 0, (ib),
+            0,-1*(ib),-1*(ia),
+            ia, 0,-1*(ib),
+            ia, 0, ib,
+            -1*(ia), 0,-1*(ib),
+            ib, -1*(ia),0,
+            -1*(ib), -1*(ia),0
+        ];
+
+        var colors = [];
+        for(var i=0;i<coords.length;i+=3){
+
+            colors.push(0,1,1);
+            colors.push(1,1,0);
+            colors.push(0,1,0);
+        }
+
+        var faces = [
+            0, 1, 2,
+            3, 2, 1,
+            3, 4, 5,
+            3, 8, 4,
+            0, 6, 7,
+            0, 9, 6,
+            4, 10, 11,
+            6, 11, 10,
+            2, 5, 9,
+            11, 9, 5,
+            1, 7, 8,
+            10, 8, 7,
+            3, 5, 2,
+            3, 1, 8,
+            0, 2, 9,
+            0, 7, 1,
+            6, 9, 11,
+            6, 10, 7,
+            4, 11, 5,
+            4, 8, 10
+        ];
+
+        var normals = this.getNormals(coords,faces);
+        var vertices = [];
+        for(var j = 0; j<coords.length;j+=3){
+            vertices.push(
+                coords[j],coords[j+1],coords[j+2],
+                colors[j],colors[j+1],colors[j+2],
+                normals[j],normals[j+1],normals[j+2]
+            );
+        }
+        return {vertices: vertices, faces: faces};
+
+    },
+
+    icosahedrons: function(rFactor, count){
+        var model;
+        var radius = 0.5;
+        for(var i = 0; i<count; i++){
+            radius += rFactor;
+            if(!model){
+                model = this.icosahedron(radius);
+            }
+            else{
+                var facesLength = model.faces.length;
+                var icosahedron = this.icosahedron(radius);
+
+                for(var vi = 0; vi<icosahedron.vertices.length; vi++){
+                    model.vertices.push(icosahedron.vertices[vi]);
+                }
+
+                for(var fi = 0; fi<icosahedron.faces.length; fi++){
+                    model.faces.push(icosahedron.faces[fi]+facesLength/3);
+                }
+            }
+        }
+        model.count = count;
+        return model;
+    },
+
 
     spiral: function(rStart, rOffset,height,rate,count){
         var vertices = [];

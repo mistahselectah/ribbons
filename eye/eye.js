@@ -196,21 +196,22 @@ var main=function() {
        }
     }
 
-    function colorOffset(vertices, rate, index, sinTable){
+    function colorOffset(vertices, rate, index, magnitude){
        for(var i = 3; i<rate*18; i+=18){
-           vertices[index*rate*18+i]    = LIBS.hsvToRgb(sinTable[index*rate*18+i]);
-           vertices[index*rate*18+i+1]  = LIBS.hsvToRgb(sinTable[index*rate*18+i+1]);
-           vertices[index*rate*18+i+2]  = LIBS.hsvToRgb(sinTable[index*rate*18+i+2]);
-           vertices[index*rate*18+i+11]    = LIBS.hsvToRgb(sinTable[index*rate*18+i+11]);
-           vertices[index*rate*18+i+1+11]  = LIBS.hsvToRgb(sinTable[index*rate*18+i+11+1]);
-           vertices[index*rate*18+i+2+11]  = LIBS.hsvToRgb(sinTable[index*rate*18+i+11+2]);
+           //var color = ;;
+           vertices[index*rate*18+i]    = Math.abs(Math.sin(LIBS.degToRad(magnitude)));
+           vertices[index*rate*18+i+1]  = Math.abs(Math.cos(LIBS.degToRad(magnitude)));
+           vertices[index*rate*18+i+2]  = Math.abs(Math.tan(LIBS.degToRad(magnitude)));
+           vertices[index*rate*18+i+11]    = Math.abs(Math.cos(LIBS.degToRad(magnitude)));
+           vertices[index*rate*18+i+1+11]  = Math.abs(Math.tan(LIBS.degToRad(magnitude)));
+           vertices[index*rate*18+i+2+11]  = Math.abs(Math.sin(LIBS.degToRad(magnitude)));
        }
     }
 
     var vertexBuffer= GL.createBuffer ();
     var facesBuffer = GL.createBuffer ();
-    var count = 32;
-    var rate = 8;
+    var count = 10;
+    var rate = 360;
     var zFactor = 1;
     var model = primitives.cylinders(0.5,0.2,rate,count);
     var itemIndex = 0;
@@ -241,8 +242,8 @@ var main=function() {
                 peaks.prepend('<li>'+magnitude+'</li>')
             }
             peaks.children().slice(10).remove();
-            zOffset(vertices,rate,itemIndex,magnitude);
-            //colorOffset(vertices,rate,itemIndex,fft.sinTable);
+            zOffset(vertices,rate,itemIndex,magnitude*10);
+            colorOffset(vertices,rate,itemIndex,magnitude*100);
             if(itemIndex<count){
                 itemIndex++;
             }else{

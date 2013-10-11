@@ -143,7 +143,7 @@ var main=function() {
     var facesBuffer = GL.createBuffer ();
 
 
-    var model = primitives.icosahedron(2);
+    var model = primitives.icosahedrons(1,10);
 
     var animate=function(time) {
 
