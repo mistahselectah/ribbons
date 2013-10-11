@@ -101,7 +101,7 @@
         // Diffuse : "color" of the object
         MaterialDiffuseColor * lColor * lPower * cosTheta / (distance*distance) +
         // Specular : reflective highlight, like a mirror
-        MaterialSpecularColor * lColor * lPower * pow(cosAlpha,5.) / (distance*distance),0.8);
+        MaterialSpecularColor * lColor * lPower * pow(cosAlpha,5.) / (distance*distance),1.);
         }
     </script>
 </head>

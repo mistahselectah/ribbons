@@ -130,10 +130,10 @@ var main=function() {
     LIBS.translateZ(VIEWMATRIX, -20);
 
     /*========================= DRAWING ========================= */
-    //GL.enable(GL.DEPTH_TEST);
-   //GL.depthFunc(GL.LEQUAL);
-    GL.enable(GL.BLEND);
-    GL.blendFunc(GL.SRC_ALPHA, GL.ONE);
+    GL.enable(GL.DEPTH_TEST);
+    GL.depthFunc(GL.LEQUAL);
+    //GL.enable(GL.BLEND);
+    //GL.blendFunc(GL.SRC_ALPHA, GL.ONE);
     GL.clearColor(0.0, 0.0, 0.0, 0.0);
     GL.clearDepth(1.0);
     var time_old=0;
@@ -143,7 +143,7 @@ var main=function() {
     var facesBuffer = GL.createBuffer ();
 
 
-    var model = primitives.icosahedrons(1,10);
+    var model = primitives.icosahedrons(2,1);
 
     var animate=function(time) {
 

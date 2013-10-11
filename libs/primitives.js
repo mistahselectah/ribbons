@@ -29,34 +29,24 @@ var primitives = {
     },
 
     getCoords: function(vertArray, index){
-        return [vertArray[index],vertArray[index+1],vertArray[index+2]];
+        return [vertArray[3*index],vertArray[3*index+1],vertArray[3*index+2]];
     },
 
     getNormals: function(coords, faces){
-        var count = 1;
+
         var normals = [];
         var a, b, c, normal;
-        for(var j = 0; j<faces.length; j++){
-            switch(count){
-                case 1:
-                    a = this.getCoords(coords, j);
-                    count++;
-                    break;
-                case 2:
-                    b = this.getCoords(coords, j);
-                    count++;
-                    break
-                case 3:
-                    c = this.getCoords(coords, j);
-                    normal = this.getNormal(a,b,c);
-                    normals.push(normal[0],normal[1],normal[2]);
-                    normals.push(normal[0],normal[1],normal[2]);
-                    normals.push(normal[0],normal[1],normal[2]);
-                    count = 1;
-                    break;
-            }
-        }
+        for(var j = 0; j<faces.length; j+=3){
 
+            a = this.getCoords(coords,faces[j]);
+            b = this.getCoords(coords, faces[j+1]);
+            c = this.getCoords(coords, faces[j+2]);
+
+            normal = this.getNormal(a,b,c);
+            normals.push(normal[0],normal[1],normal[2]);
+            normals.push(normal[0],normal[1],normal[2]);
+            normals.push(normal[0],normal[1],normal[2]);
+        }
 
         /*for(var i = 0; i<vertices.length; i++){
             normals.push(0);
@@ -90,6 +80,7 @@ var primitives = {
             normals[faces[j+2   ]+2] = addResult[2];
 
         }*/
+
         return normals;
     },
 
@@ -119,7 +110,6 @@ var primitives = {
         return {vertices: vertices, colors: colors, faces: faces, normals: normals};
 
     },
-
 
     goldenRectangles: function(a){
         var vertices = [];
@@ -192,31 +182,89 @@ var primitives = {
 
     },
 
-    triangle: function(lA,lB,angle, z){
-        var x1, x2, y1, y2;
+    subdivideFace: function(coords, colors, faces){
+        var a, b, c, r, g, b, p1 ={}, p2= {}, p3 ={}, newFaces = [];
+
+        for(var j = 0; j<faces.length; j+=3){
+
+            a = this.getCoords(coords, faces[j]);
+            b = this.getCoords(coords, faces[j+1]);
+            c = this.getCoords(coords, faces[j+2]);
+
+            p1.x = (a[0]+b[0])/2;
+            p1.y = (a[1]+b[1])/2;
+            p1.z = (a[2]+b[2])/2;
+
+            p2.x = (b[0]+c[0])/2;
+            p2.y = (b[1]+c[1])/2;
+            p2.z = (b[2]+c[2])/2;
+
+            p3.x = (a[0]+c[0])/2;
+            p3.y = (a[1]+c[1])/2;
+            p3.z = (a[2]+c[2])/2;
+        }
+
+        coords.splice(3,0,p1.x,p1.y, p1.z);
+        coords.splice(9,0,p2.x,p2.y, p2.z);
+        coords.splice(15,0,p3.x,p3.y, p3.z);
+
+        r = Math.abs(p1.x);
+        g = Math.abs(p1.y);
+        b = Math.abs(p1.z);
+
+        colors.splice(3,0,r,g, b);
+
+        r = Math.abs(p2.x);
+        g = Math.abs(p2.y);
+        b = Math.abs(p2.z);
+
+        colors.splice(9,0,r,g, b);
+
+        r = Math.abs(p3.x);
+        g = Math.abs(p3.y);
+        b = Math.abs(p3.z);
+        colors.splice(15,0,r,g, b);
+
+        faces.splice(
+            0,3,
+            0,1,5,
+            1,2,3,
+            3,4,5
+            //5,1,3
+        );
+
+    },
+
+    triangle: function(radius, z){
+        var x, y;
         var vertices = [];
+        var coords = [];
         var colors = [];
         var faces = [];
         var normals = [];
 
-        vertices.push(0,0,z);
-        colors.push(0,0,0);
-
-        x1 = Math.sin(LIBS.degToRad(0))*lA;
-        y1 = Math.cos(LIBS.degToRad(0))*lA;
-        vertices.push(x1,y1,z);
-        colors.push(1,0,0);
-
-        x2 = Math.sin(LIBS.degToRad(angle))*lB;
-        y2 = Math.cos(LIBS.degToRad(angle))*lB;
-        vertices.push(x2,y2,z);
-        colors.push(0,0,1);
+        for(var i =0; i<3;i++){
+            x = Math.sin(LIBS.degToRad(360/3*i))*radius/2;
+            y = Math.cos(LIBS.degToRad(360/3*i))*radius/2;
+            coords.push(x,y,z);
+            colors.push(Math.abs(x),Math.abs(y),Math.abs(z));
+        }
 
         faces.push(0,1,2);
 
-        normals = this.getNormals(vertices, faces);
+        this.subdivideFace(coords, colors, faces);
 
-        return {vertices: vertices, colors: colors, faces: faces, normals: normals};
+        normals = this.getNormals(coords, faces);
+
+        for(var j = 0; j<coords.length;j+=3){
+            vertices.push(
+                coords[j],coords[j+1],coords[j+2],
+                colors[j],colors[j+1],colors[j+2],
+                normals[j],normals[j+1],normals[j+2]
+            );
+        }
+
+        return {vertices: vertices, faces: faces};
     },
 
     cone: function(radius, height, rate){
@@ -349,9 +397,9 @@ var primitives = {
         var colors = [];
         for(var i=0;i<coords.length;i+=3){
 
-            colors.push(0,1,1);
-            colors.push(1,1,0);
-            colors.push(0,1,0);
+            colors.push(0.5,0.5,0.5);
+            colors.push(0.5,0.5,0.5);
+            colors.push(0.5,0.5,0.5);
         }
 
         var faces = [
