@@ -204,33 +204,33 @@ var primitives = {
             p3.z = (a[2]+c[2])/2;
         }
 
-        coords.splice(3,0,p1.x,p1.y, p1.z);
-        coords.splice(9,0,p2.x,p2.y, p2.z);
-        coords.splice(15,0,p3.x,p3.y, p3.z);
+        coords.push(p1.x,p1.y, p1.z);
+        coords.push(p2.x,p2.y, p2.z);
+        coords.push(p3.x,p3.y, p3.z);
 
         r = Math.abs(p1.x);
         g = Math.abs(p1.y);
         b = Math.abs(p1.z);
 
-        colors.splice(3,0,r,g, b);
+        colors.push(r,g, b);
 
         r = Math.abs(p2.x);
         g = Math.abs(p2.y);
         b = Math.abs(p2.z);
 
-        colors.splice(9,0,r,g, b);
+        colors.push(r,g, b);
 
         r = Math.abs(p3.x);
         g = Math.abs(p3.y);
         b = Math.abs(p3.z);
-        colors.splice(15,0,r,g, b);
+        colors.push(r, g, b);
 
         faces.splice(
-            0,3,
+            0,faces.length,
             0,1,5,
             1,2,3,
-            3,4,5
-            //5,1,3
+            3,4,5,
+            5,1,3
         );
 
     },
