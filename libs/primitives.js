@@ -1,5 +1,10 @@
 var primitives = {
 
+    hash: function(i0,i1){
+        return i0.toString().concat(i1);
+        //return str.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+    },
+
     getNormal: function(a,b,c){
         var edge1 = this.subVector(a,b);
         var edge2 = this.subVector(a,c);
@@ -182,50 +187,69 @@ var primitives = {
 
     },
 
-    getMidPoint: function(a,b){
-       return [
-            (a[0]+b[0])/2,
-            (a[1]+b[1])/2,
-            (a[2]+b[2])/2
-       ]
+    getMidPointIndex: function(hashes,coords,i0,i1){
+
+        var hash = this.hash(Math.min(i0,i1),Math.max(i0,i1));
+
+        var index = hashes.indexOf(hash);
+        if(index==-1){
+            var a = this.getCoords(coords,i0);
+            var b = this.getCoords(coords,i1);
+
+            var midpoint = [
+                (a[0]+b[0])/2,
+                (a[1]+b[1])/2,
+                (a[2]+b[2])/2
+            ];
+
+            index = coords.length/3;
+            coords.push(midpoint[0],midpoint[1],midpoint[2]);
+            hashes.push(hash);
+        }
+        return index;
     },
 
-    subdivideFaces: function(coords, colors, faces){
-        var newFaces = [];
+    subdivideFaces: function(coords, colors, faces, hashes, removeFaces){
+        var facesLength = faces.length;
 
-        //for(var i = 0;i<faces.length;i+=3){
-            var a, b, c, r, g, b, p1, p2, p3;
+        for(var i = 0;i<facesLength-2;i+=3){
+            var a, b, c, r, g, b, m01, m12, m02;
 
-            var coordsLength = coords.length/3;
-            a = this.getCoords(coords, faces[0]);
-            b = this.getCoords(coords, faces[1]);
-            c = this.getCoords(coords, faces[2]);
+            var i0 = faces[i];
+            var i1 = faces[i + 1];
+            var i2 = faces[i + 2];
 
-            p1 = this.getMidPoint(a,b);
-            p2 = this.getMidPoint(b,c);
-            p3 = this.getMidPoint(a,c);
 
-            coords.push(p1[0],p1[1], p1[2]);
-            coords.push(p2[0],p2[1], p2[2]);
-            coords.push(p3[0],p3[1], p3[2]);
+            m01  = this.getMidPointIndex(hashes, coords,i0,i1);
+            m12  = this.getMidPointIndex(hashes, coords,i1,i2);
+            m02  = this.getMidPointIndex(hashes, coords,i0,i2);
 
-            r = Math.abs(p1[0]);
-            g = Math.abs(p2[1]);
-            b = Math.abs(p3[2]);
+            r = Math.abs(1);
+            g = Math.abs(0);
+            b = Math.abs(1);
 
             colors.push(r,g, b);
             colors.push(r,g, b);
             colors.push(r, g, b);
 
             var oldFaces = [faces[0],faces[1],faces[2]];
-            newFaces.push(
-                oldFaces[0],coordsLength,coordsLength+2,
-                coordsLength,oldFaces[1],coordsLength+1,
-                coordsLength+1,oldFaces[2],coordsLength+2,
-                coordsLength+2,coordsLength,coordsLength+1
-            );
-       // }
-        return newFaces;
+            if (!removeFaces){
+                faces.push(
+                    i0,m01,m02,
+                    i1,m12,m01,
+                    i2,m02,m12,
+                    m02,m01,m12
+                );
+            }else{
+                faces.splice(
+                    0,faces.length,
+                    i0,m01,m02,
+                    i1,m12,m01,
+                    i2,m02,m12,
+                    m02,m01,m12
+                );
+            }
+        }
     },
 
     triangle: function(radius, z){
@@ -235,6 +259,7 @@ var primitives = {
         var colors = [];
         var faces = [];
         var normals = [];
+        var hashes = [];
 
         for(var i =0; i<3;i++){
             x = Math.sin(LIBS.degToRad(360/3*i))*radius/2;
@@ -244,14 +269,11 @@ var primitives = {
         }
 
         faces.push(0,1,2);
+        //hashes.push('01','12','02');
 
-        faces = this.subdivideFaces(coords, colors, [faces[0],faces[1],faces[2]]);
-        var devidedFaces = this.subdivideFaces(coords, colors, [faces[0],faces[1],faces[2]]);
-        devidedFaces = this.subdivideFaces(coords, colors, [faces[3],faces[4],faces[5]]);
-        devidedFaces = this.subdivideFaces(coords, colors, [faces[6],faces[7],faces[8]]);
+        this.subdivideFaces(coords, colors, faces, hashes, true);
 
-
-        normals = this.getNormals(coords, devidedFaces);
+        normals = this.getNormals(coords, faces);
 
         for(var j = 0; j<coords.length;j+=3){
             vertices.push(
@@ -261,7 +283,7 @@ var primitives = {
             );
         }
 
-        return {vertices: vertices, faces: devidedFaces};
+        return {vertices: vertices, faces: faces};
     },
 
     cone: function(radius, height, rate){
