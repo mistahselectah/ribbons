@@ -182,57 +182,50 @@ var primitives = {
 
     },
 
-    subdivideFace: function(coords, colors, faces){
-        var a, b, c, r, g, b, p1 ={}, p2= {}, p3 ={}, newFaces = [];
+    getMidPoint: function(a,b){
+       return [
+            (a[0]+b[0])/2,
+            (a[1]+b[1])/2,
+            (a[2]+b[2])/2
+       ]
+    },
 
-        for(var j = 0; j<faces.length; j+=3){
+    subdivideFaces: function(coords, colors, faces){
+        var newFaces = [];
 
-            a = this.getCoords(coords, faces[j]);
-            b = this.getCoords(coords, faces[j+1]);
-            c = this.getCoords(coords, faces[j+2]);
+        //for(var i = 0;i<faces.length;i+=3){
+            var a, b, c, r, g, b, p1, p2, p3;
 
-            p1.x = (a[0]+b[0])/2;
-            p1.y = (a[1]+b[1])/2;
-            p1.z = (a[2]+b[2])/2;
+            var coordsLength = coords.length/3;
+            a = this.getCoords(coords, faces[0]);
+            b = this.getCoords(coords, faces[1]);
+            c = this.getCoords(coords, faces[2]);
 
-            p2.x = (b[0]+c[0])/2;
-            p2.y = (b[1]+c[1])/2;
-            p2.z = (b[2]+c[2])/2;
+            p1 = this.getMidPoint(a,b);
+            p2 = this.getMidPoint(b,c);
+            p3 = this.getMidPoint(a,c);
 
-            p3.x = (a[0]+c[0])/2;
-            p3.y = (a[1]+c[1])/2;
-            p3.z = (a[2]+c[2])/2;
-        }
+            coords.push(p1[0],p1[1], p1[2]);
+            coords.push(p2[0],p2[1], p2[2]);
+            coords.push(p3[0],p3[1], p3[2]);
 
-        coords.push(p1.x,p1.y, p1.z);
-        coords.push(p2.x,p2.y, p2.z);
-        coords.push(p3.x,p3.y, p3.z);
+            r = Math.abs(p1[0]);
+            g = Math.abs(p2[1]);
+            b = Math.abs(p3[2]);
 
-        r = Math.abs(p1.x);
-        g = Math.abs(p1.y);
-        b = Math.abs(p1.z);
+            colors.push(r,g, b);
+            colors.push(r,g, b);
+            colors.push(r, g, b);
 
-        colors.push(r,g, b);
-
-        r = Math.abs(p2.x);
-        g = Math.abs(p2.y);
-        b = Math.abs(p2.z);
-
-        colors.push(r,g, b);
-
-        r = Math.abs(p3.x);
-        g = Math.abs(p3.y);
-        b = Math.abs(p3.z);
-        colors.push(r, g, b);
-
-        faces.splice(
-            0,faces.length,
-            0,1,5,
-            1,2,3,
-            3,4,5,
-            5,1,3
-        );
-
+            var oldFaces = [faces[0],faces[1],faces[2]];
+            newFaces.push(
+                oldFaces[0],coordsLength,coordsLength+2,
+                coordsLength,oldFaces[1],coordsLength+1,
+                coordsLength+1,oldFaces[2],coordsLength+2,
+                coordsLength+2,coordsLength,coordsLength+1
+            );
+       // }
+        return newFaces;
     },
 
     triangle: function(radius, z){
@@ -252,9 +245,13 @@ var primitives = {
 
         faces.push(0,1,2);
 
-        this.subdivideFace(coords, colors, faces);
+        faces = this.subdivideFaces(coords, colors, [faces[0],faces[1],faces[2]]);
+        var devidedFaces = this.subdivideFaces(coords, colors, [faces[0],faces[1],faces[2]]);
+        devidedFaces = this.subdivideFaces(coords, colors, [faces[3],faces[4],faces[5]]);
+        devidedFaces = this.subdivideFaces(coords, colors, [faces[6],faces[7],faces[8]]);
 
-        normals = this.getNormals(coords, faces);
+
+        normals = this.getNormals(coords, devidedFaces);
 
         for(var j = 0; j<coords.length;j+=3){
             vertices.push(
@@ -264,7 +261,7 @@ var primitives = {
             );
         }
 
-        return {vertices: vertices, faces: faces};
+        return {vertices: vertices, faces: devidedFaces};
     },
 
     cone: function(radius, height, rate){

@@ -19,6 +19,7 @@
         void main(void) {
         vColor=color;
         gl_Position = Pmatrix*Vmatrix*Mmatrix*vec4(position, 1.);
+        gl_PointSize = 10.;
         }
     </script>
 

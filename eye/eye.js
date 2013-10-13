@@ -178,7 +178,7 @@ var main=function() {
     var THETA=0,
         PHI=0;
 
-    LIBS.translateZ(VIEWMATRIX, -20);
+    LIBS.translateZ(VIEWMATRIX, -50);
 
     /*========================= DRAWING ========================= */
     //GL.enable(GL.DEPTH_TEST);
@@ -192,7 +192,7 @@ var main=function() {
     function zOffset(vertices, rate, index, magnitude){
        for(var i = 0; i<rate*18; i+=18){
            vertices[index*rate*18+i+2]  = magnitude;
-           //vertices[index*rate*18+i+11] = -1*magnitude/5;
+           vertices[index*rate*18+i+11] = -1*magnitude/5;
        }
     }
 
@@ -210,10 +210,10 @@ var main=function() {
 
     var vertexBuffer= GL.createBuffer ();
     var facesBuffer = GL.createBuffer ();
-    var count = 10;
-    var rate = 360;
+    var count = 50;
+    var rate = 120;
     var zFactor = 1;
-    var model = primitives.cylinders(0.5,0.2,rate,count);
+    var model = primitives.cylinders(1,0.2,rate,count);
     var itemIndex = 0;
     var fpsTime=0;
     var fpsFrames=0;
@@ -221,6 +221,8 @@ var main=function() {
     var bpmEl = $("#bpm");
     var peaks = $("#peaks");
     var timeEl = $("#time");
+    var oldMagnitude;
+    var interpolation = 10;
     var animate=function(time) {
 
         var dt=time-time_old;
@@ -237,13 +239,19 @@ var main=function() {
             fpsTime = fpsFrames = 0;
         }
         var vertices = model.vertices;
+        var smoothFactor = (oldMagnitude-magnitude)/10000;
+        var currentMagnitude = oldMagnitude+=smoothFactor;
         if(magnitude){
             if(magnitude>1){
                 peaks.prepend('<li>'+magnitude+'</li>')
             }
             peaks.children().slice(10).remove();
-            zOffset(vertices,rate,itemIndex,magnitude*10);
-            colorOffset(vertices,rate,itemIndex,magnitude*100);
+            for(var  i = 0; i<interpolation; i++){
+                if(vertices[itemIndex])
+                zOffset(vertices,rate,itemIndex+i,currentMagnitude*10);
+                colorOffset(vertices,rate,itemIndex+i,currentMagnitude*10);
+            }
+
             if(itemIndex<count){
                 itemIndex++;
             }else{
@@ -252,6 +260,7 @@ var main=function() {
 
 
         }
+        oldMagnitude = magnitude;
 
 
         if (!drag) {
@@ -281,7 +290,7 @@ var main=function() {
         GL.uniformMatrix4fv(_Pmatrix, false, PROJMATRIX);
         GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
         GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
-        GL.uniform3f(_wsLightPosition, 0,0,5);
+        GL.uniform3f(_wsLightPosition, 0,0,20);
 
         GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
         GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(vertices), GL.STATIC_DRAW);

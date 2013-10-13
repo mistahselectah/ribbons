@@ -141,7 +141,7 @@ var main=function() {
 
     /*========================= DRAWING ========================= */
     GL.enable(GL.DEPTH_TEST);
-    GL.depthFunc(GL.LEQUAL);
+    GL.depthFunc(GL.LESS);
     GL.clearColor(0.0, 0.0, 0.0, 0.0);
     GL.clearDepth(1.0);
 
@@ -166,8 +166,9 @@ var main=function() {
         GL.vertexAttribPointer(_position, 3, GL.FLOAT, false,4*9,0) ;
         GL.vertexAttribPointer(_color, 3, GL.FLOAT, false,4*9,3*4) ;
         GL.bindBuffer(GL.ARRAY_BUFFER, CUBE_VERTEX);
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, CUBE_FACES);
-        GL.drawElements(GL.TRIANGLES, model.faces.length, GL.UNSIGNED_SHORT, 0);
+        //GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, CUBE_FACES);
+        //GL.drawElements(GL.TRIANGLES, model.faces.length, GL.UNSIGNED_SHORT, 0);
+        GL.drawArrays(GL.POINTS, 0, model.vertices.length/9);
 
         GL.flush();
 
