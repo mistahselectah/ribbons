@@ -113,7 +113,14 @@ var main=function() {
 
     GL.useProgram(SHADER_PROGRAM);
 
-    var model = primitives.triangle(2,0);
+    //var model = primitives.triangle(2,0);
+    var model = primitives.spiral(1,0.001,0.1,360,100);
+    for (var i = 0; i < 2; i++){
+        //primitives.subdivideFaces(model.coords, model.colors, model.faces,[], true);
+    }
+    console.log(model);
+
+    //model.vertices = primitives.prepareVertices(model);
 
     var CUBE_VERTEX= GL.createBuffer ();
     GL.bindBuffer(GL.ARRAY_BUFFER, CUBE_VERTEX);
@@ -137,7 +144,7 @@ var main=function() {
     var THETA=0,
            PHI=0;
 
-    LIBS.translateZ(VIEWMATRIX, -6);
+    LIBS.translateZ(VIEWMATRIX, -30);
 
     /*========================= DRAWING ========================= */
     GL.enable(GL.DEPTH_TEST);
@@ -168,7 +175,7 @@ var main=function() {
         GL.bindBuffer(GL.ARRAY_BUFFER, CUBE_VERTEX);
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, CUBE_FACES);
         GL.drawElements(GL.TRIANGLES, model.faces.length, GL.UNSIGNED_SHORT, 0);
-        GL.drawElements(GL.TRIANGLES, model.faces.length, GL.UNSIGNED_SHORT, 0);
+        //GL.drawArrays(GL.POINTS,0, model.vertices.length/9);
 
         GL.flush();
 

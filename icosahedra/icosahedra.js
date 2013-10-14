@@ -143,8 +143,11 @@ var main=function() {
     var facesBuffer = GL.createBuffer ();
 
 
-    var model = primitives.icosahedrons(2,1);
-
+    var model = primitives.icosahedron(2,1);
+    for (var i = 0; i < 2; i++){
+        primitives.subdivideFaces(model.coords, model.colors, model.faces,[], true);
+    }
+    model.vertices = primitives.prepareVertices(model);
     var animate=function(time) {
 
         var dt=time-time_old;

@@ -1,5 +1,17 @@
 var primitives = {
 
+    prepareVertices: function(model){
+        var vertices = [];
+        for(var j = 0; j<model.coords.length;j+=3){
+            vertices.push(
+                model.coords[j],model.coords[j+1],model.coords[j+2],
+                model.colors[j],model.colors[j+1],model.colors[j+2],
+                model.normals[j],model.normals[j+1],model.normals[j+2]
+            );
+        }
+        return vertices;
+    },
+
     hash: function(i0,i1){
         return i0.toString().concat(i1);
         //return str.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
@@ -242,7 +254,7 @@ var primitives = {
                 );
             }else{
                 faces.splice(
-                    0,faces.length,
+                    0,3,
                     i0,m01,m02,
                     i1,m12,m01,
                     i2,m02,m12,
@@ -271,19 +283,9 @@ var primitives = {
         faces.push(0,1,2);
         //hashes.push('01','12','02');
 
-        this.subdivideFaces(coords, colors, faces, hashes, true);
-
         normals = this.getNormals(coords, faces);
 
-        for(var j = 0; j<coords.length;j+=3){
-            vertices.push(
-                coords[j],coords[j+1],coords[j+2],
-                colors[j],colors[j+1],colors[j+2],
-                normals[j],normals[j+1],normals[j+2]
-            );
-        }
-
-        return {vertices: vertices, faces: faces};
+        return {coords: coords, colors: colors, normals: normals, faces: faces};
     },
 
     cone: function(radius, height, rate){
@@ -453,7 +455,7 @@ var primitives = {
                 normals[j],normals[j+1],normals[j+2]
             );
         }
-        return {vertices: vertices, faces: faces};
+        return {coords: coords, colors: colors, normals: normals, faces: faces};
 
     },
 
@@ -490,19 +492,33 @@ var primitives = {
         var faces = [];
         var normals = [];
         var radius = 0.1;
+        var zOffset = rate*count/2*-0.001;
+
+        var up =true;
         for(var i = 0; i<rate*count; i++){
 
+            zOffset+=0.001;
+            if(up){
+                radius+=rOffset;
+                up = i<rate*count/2;
+            }else{
+
+                radius-=rOffset;
+            }
+                nextStart = 0;
+
+
             var angle = LIBS.degToRad(360/rate*i);
-            var color = LIBS.hsvToRgb(360*i,100,100);
+            //var color = LIBS.hsvToRgb(360*i,100,100);
             var x = Math.sin(angle)*radius;
             var y =  Math.cos(angle)*radius;
             var z = height/2;
             //vertice coords
-            coords.push(x, y, z);
-            colors.push(color[0], color[1],color[3]);
+            coords.push(x, y, z+zOffset);
+            colors.push(Math.abs(x), Math.abs(y),Math.abs(z));
 
-            coords.push(x, y, -1*z);
-            colors.push(color[0], color[1],color[3]);
+            coords.push(x, y, -1*z+zOffset);
+            colors.push(Math.abs(x), Math.abs(y),Math.abs(z));
 
             if(i<rate*count-2){
                 faces.push(i*2, i*2+1,i*2+2);
@@ -510,7 +526,7 @@ var primitives = {
             }else{
 
             }
-            radius+=rOffset;
+
         }
 
         normals = this.getNormals(coords, faces);
