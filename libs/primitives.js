@@ -204,64 +204,63 @@ var primitives = {
         var hash = this.hash(Math.min(i0,i1),Math.max(i0,i1));
 
         var index = hashes.indexOf(hash);
-        if(index==-1){
-            var a = this.getCoords(coords,i0);
-            var b = this.getCoords(coords,i1);
 
-            var midpoint = [
-                (a[0]+b[0])/2,
-                (a[1]+b[1])/2,
-                (a[2]+b[2])/2
-            ];
-
-            index = coords.length/3;
-            coords.push(midpoint[0],midpoint[1],midpoint[2]);
-            hashes.push(hash);
+        for(var i = 0;i<hashes.count;i++){
+            if(hashes[i].hash == hash){
+                return hashes[i].index;
+            }
         }
+
+        var a = this.getCoords(coords,i0);
+        var b = this.getCoords(coords,i1);
+
+        var midpoint = [
+            (a[0]+b[0])/2,
+            (a[1]+b[1])/2,
+            (a[2]+b[2])/2
+        ];
+
+        index = coords.length/3;
+        coords.push(midpoint[0],midpoint[1],midpoint[2]);
+        hashes.push({hash: hash, index: index});
+
         return index;
     },
 
-    subdivideFaces: function(coords, colors, faces, hashes, removeFaces){
-        var facesLength = faces.length;
+    subdivideFaces: function(model){
+        var hashes=[];
+        var facesLength = model.faces.length;
+        var newFaces = [];
 
         for(var i = 0;i<facesLength-2;i+=3){
             var a, b, c, r, g, b, m01, m12, m02;
 
-            var i0 = faces[i];
-            var i1 = faces[i + 1];
-            var i2 = faces[i + 2];
+            var i0 = model.faces[i];
+            var i1 = model.faces[i + 1];
+            var i2 = model.faces[i + 2];
 
 
-            m01  = this.getMidPointIndex(hashes, coords,i0,i1);
-            m12  = this.getMidPointIndex(hashes, coords,i1,i2);
-            m02  = this.getMidPointIndex(hashes, coords,i0,i2);
+            m01  = this.getMidPointIndex(hashes, model.coords,i0,i1);
+            m12  = this.getMidPointIndex(hashes, model.coords,i1,i2);
+            m02  = this.getMidPointIndex(hashes, model.coords,i0,i2);
 
             r = Math.abs(1);
             g = Math.abs(0);
             b = Math.abs(1);
 
-            colors.push(r,g, b);
-            colors.push(r,g, b);
-            colors.push(r, g, b);
+            model.colors.push(r,g, b);
+            model.colors.push(r,g, b);
+            model.colors.push(r, g, b);
 
-            var oldFaces = [faces[0],faces[1],faces[2]];
-            if (!removeFaces){
-                faces.push(
-                    i0,m01,m02,
-                    i1,m12,m01,
-                    i2,m02,m12,
-                    m02,m01,m12
-                );
-            }else{
-                faces.splice(
-                    0,3,
-                    i0,m01,m02,
-                    i1,m12,m01,
-                    i2,m02,m12,
-                    m02,m01,m12
-                );
-            }
+            newFaces.push(
+                i0,m01,m02,
+                i1,m12,m01,
+                i2,m02,m12,
+                m02,m01,m12
+            );
         }
+        var normals = this.getNormals(model.coords, model.faces);
+        return {coords: model.coords, colors: model.colors, faces: newFaces, normals: normals};
     },
 
     triangle: function(radius, z){
@@ -489,10 +488,10 @@ var primitives = {
         var up =true;
         for(var i = 0; i<rate*count; i++){
             //lollypop ))
-            var sRadius =  Math.sin(LIBS.degToRad(360/rate/count*i));
+            var sRadius =  Math.cos(LIBS.degToRad(360/rate/count*i));
 
-            zOffset+=0.001;
-            radius += sRadius/100;
+            zOffset=sRadius*5;
+            radius += sRadius/1000;
 
             /*if(up){
                 radius += rOffset;

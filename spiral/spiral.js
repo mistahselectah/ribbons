@@ -92,8 +92,8 @@ var main=function() {
         return shader;
     }
 
-    var shader_vertex=getShader(GL, "color-shader-vs");
-    var shader_fragment=getShader( GL, "color-shader-fs");
+    var shader_vertex=getShader(GL, "light-shader-vs");
+    var shader_fragment=getShader( GL, "light-shader-fs");
 
     var SHADER_PROGRAM=GL.createProgram();
     GL.attachShader(SHADER_PROGRAM, shader_vertex);
@@ -104,26 +104,30 @@ var main=function() {
     var _Pmatrix = GL.getUniformLocation(SHADER_PROGRAM, "Pmatrix");
     var _Vmatrix = GL.getUniformLocation(SHADER_PROGRAM, "Vmatrix");
     var _Mmatrix = GL.getUniformLocation(SHADER_PROGRAM, "Mmatrix");
+    var _wsLightPosition = GL.getUniformLocation(SHADER_PROGRAM, "wsLightPosition");
 
-    var _color = GL.getAttribLocation(SHADER_PROGRAM, "color");
     var _position = GL.getAttribLocation(SHADER_PROGRAM, "position");
+    var _color = GL.getAttribLocation(SHADER_PROGRAM, "color");
+    var _normal = GL.getAttribLocation(SHADER_PROGRAM, "normal");
 
-    GL.enableVertexAttribArray(_color);
     GL.enableVertexAttribArray(_position);
+    GL.enableVertexAttribArray(_color);
+    GL.enableVertexAttribArray(_normal);
 
     GL.useProgram(SHADER_PROGRAM);
 
-    var model = primitives.spiral(1,0.001,0.5,360,50);
+    //var model = primitives.spiral(0.1,0.001,0.5,360,100);
+    var model = primitives.spiralFlower(0.1,0.001,0.5,360,100);
 
-    var CUBE_VERTEX= GL.createBuffer ();
-    GL.bindBuffer(GL.ARRAY_BUFFER, CUBE_VERTEX);
+    var vertexBuffer= GL.createBuffer ();
+    GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
     GL.bufferData(GL.ARRAY_BUFFER,
         new Float32Array(model.vertices),
         GL.STATIC_DRAW);
 
 
-    var CUBE_FACES= GL.createBuffer ();
-    GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, CUBE_FACES);
+    var facesBuffer= GL.createBuffer ();
+    GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, facesBuffer);
     GL.bufferData(GL.ELEMENT_ARRAY_BUFFER,
         new Uint16Array(model.faces),
         GL.STATIC_DRAW);
@@ -139,8 +143,10 @@ var main=function() {
     LIBS.translateZ(VIEWMATRIX, -50);
 
     /*========================= DRAWING ========================= */
-    GL.enable(GL.DEPTH_TEST);
-    GL.depthFunc(GL.LEQUAL);
+    //GL.enable(GL.DEPTH_TEST);
+    //GL.depthFunc(GL.LEQUAL);
+    GL.enable(GL.BLEND);
+    GL.blendFunc(GL.SRC_ALPHA, GL.ONE);
     GL.clearColor(0.0, 0.0, 0.0, 0.0);
     GL.clearDepth(1.0);
 
@@ -153,8 +159,8 @@ var main=function() {
         }
 
         LIBS.set_I4(MOVEMATRIX);
-        LIBS.rotateY(MOVEMATRIX, THETA);
-        LIBS.rotateX(MOVEMATRIX, PHI);
+        LIBS.rotateY(MOVEMATRIX, THETA+dt/1000);
+        LIBS.rotateX(MOVEMATRIX, PHI+dt/1000);
         time_old=time;
 
         GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height);
@@ -162,10 +168,15 @@ var main=function() {
         GL.uniformMatrix4fv(_Pmatrix, false, PROJMATRIX);
         GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
         GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
+        GL.uniform3f(_wsLightPosition, 0,0,10);
+
+        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(model.vertices), GL.STATIC_DRAW);
+
         GL.vertexAttribPointer(_position, 3, GL.FLOAT, false,4*9,0) ;
         GL.vertexAttribPointer(_color, 3, GL.FLOAT, false,4*9,3*4) ;
-        GL.bindBuffer(GL.ARRAY_BUFFER, CUBE_VERTEX);
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, CUBE_FACES);
+        GL.vertexAttribPointer(_normal, 3, GL.FLOAT, false,4*9,6*4);
+
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, facesBuffer);
         GL.drawElements(GL.TRIANGLES, model.faces.length, GL.UNSIGNED_SHORT, 0);
 
         GL.flush();

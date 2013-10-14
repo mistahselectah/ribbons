@@ -116,7 +116,7 @@ var main=function() {
     //var model = primitives.triangle(2,0);
     var model = primitives.cone(2,2,3);
     for (var i = 0; i < 1; i++){
-        primitives.subdivideFaces(model.coords, model.colors, model.faces,[], true);
+        model = primitives.subdivideFaces(model);
     }
     console.log(model);
 

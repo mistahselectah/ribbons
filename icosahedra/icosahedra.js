@@ -145,7 +145,7 @@ var main=function() {
 
     var model = primitives.icosahedron(2,1);
     for (var i = 0; i < 2; i++){
-        primitives.subdivideFaces(model.coords, model.colors, model.faces,[], true);
+        model =primitives.subdivideFaces(model);
     }
     model.vertices = primitives.prepareVertices(model);
     var animate=function(time) {
