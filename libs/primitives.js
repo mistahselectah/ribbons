@@ -1,5 +1,16 @@
 var primitives = {
 
+    normalize: function(normals){
+        var x, y, z, a;
+        for(var i = 0; i<normals.length/3;i+=3){
+            x = normals[i];
+            y = normals[i+1];
+            z = normals[i+2];
+            a = Math.sqrt(Math.pow(x,2)+Math.pow(y,2)+Math.pow(z,2));
+            normals.splice(i,3,a*x/Math.abs(a),a*y/Math.abs(a),a*z/Math.abs(a));
+        }
+    },
+
     prepareVertices: function(model){
         var vertices = [];
         for(var j = 0; j<model.coords.length;j+=3){
@@ -345,15 +356,7 @@ var primitives = {
 
         normals = this.getNormals(coords, faces);
 
-        for(var j = 0; j<coords.length;j+=3){
-            vertices.push(
-                coords[j],coords[j+1],coords[j+2],
-                colors[j],colors[j+1],colors[j+2],
-                normals[j],normals[j+1],normals[j+2]
-            );
-        }
-
-        return {vertices: vertices, faces: faces};
+        return {vertices: [], coords: coords, colors:colors, normals: normals, faces: faces};
     },
 
     cylinders: function(rFactor, hFactor, rateFactor, count){

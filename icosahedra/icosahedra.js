@@ -143,10 +143,12 @@ var main=function() {
     var facesBuffer = GL.createBuffer ();
 
 
-    var model = primitives.icosahedron(2,1);
-    for (var i = 0; i < 2; i++){
+    var model = primitives.icosahedron(5);
+    for (var i = 0; i < 3; i++){
         model =primitives.subdivideFaces(model);
     }
+
+    primitives.normalize(model.normals);
     model.vertices = primitives.prepareVertices(model);
     var animate=function(time) {
 

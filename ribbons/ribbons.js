@@ -195,10 +195,10 @@ var main=function() {
     LIBS.translateZ(VIEWMATRIX, -30);
 
     /*========================= DRAWING ========================= */
-    //GL.enable(GL.DEPTH_TEST);
-    //GL.depthFunc(GL.LEQUAL);
-    GL.enable(GL.BLEND);
-    GL.blendFunc(GL.SRC_ALPHA, GL.ONE);
+    GL.enable(GL.DEPTH_TEST);
+    GL.depthFunc(GL.LESS);
+    //GL.enable(GL.BLEND);
+    //GL.blendFunc(GL.SRC_ALPHA, GL.ONE);
     GL.clearColor(0.0, 0.0, 0.0, 0.0);
     GL.clearDepth(1.0);
 
@@ -206,10 +206,12 @@ var main=function() {
     var facesBuffer = GL.createBuffer ();
 
     var time_old=0;
-    var rate = 120;
-    var elCount = 5;
+    var rate = 36;
+    var elCount = 1;
 
-    var model = primitives.cylinders(1,1,rate,elCount);
+    var model = primitives.cylinders(10,10,rate,elCount);
+    //primitives.normalize(model.normals);
+    model.vertices = primitives.prepareVertices(model);
     var animate=function(time) {
 
         var dt=time-time_old;

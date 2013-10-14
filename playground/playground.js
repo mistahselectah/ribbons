@@ -118,7 +118,8 @@ var main=function() {
     for (var i = 0; i < 1; i++){
         model = primitives.subdivideFaces(model);
     }
-    console.log(model);
+
+    primitives.normalize(model.normals);
 
     model.vertices = primitives.prepareVertices(model);
 
