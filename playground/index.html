@@ -4,7 +4,7 @@
     <meta charset='utf-8'/>
     <script type="text/javascript" src="../libs/libs.js"></script>
     <script type="text/javascript" src="../libs/primitives.js"></script>
-    <script type="text/javascript" src="boilerplate.js"></script>
+    <script type="text/javascript" src="playground.js"></script>
 
     <script id="color-shader-vs" type="x-shader/x-vertex">
         attribute vec3 position;
@@ -17,9 +17,9 @@
         varying vec3 vColor;
 
         void main(void) {
-        vColor=color;
-        gl_Position = Pmatrix*Vmatrix*Mmatrix*vec4(position, 1.);
-        gl_PointSize = 5.;
+            vColor=color;
+            gl_Position = Pmatrix*Vmatrix*Mmatrix*vec4(position, 1.);
+            gl_PointSize = 10.;
         }
     </script>
 
@@ -28,7 +28,7 @@
         varying vec3 vColor;
 
         void main(void) {
-        gl_FragColor = vec4(vColor, 0.8);
+            gl_FragColor = vec4(vColor, 0.8);
         }
     </script>
 

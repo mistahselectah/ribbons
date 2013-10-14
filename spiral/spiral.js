@@ -14,6 +14,39 @@ var main=function() {
     CANVAS.width=window.innerWidth;
     CANVAS.height=window.innerHeight;
 
+    var AMORTIZATION=0.95;
+        var drag=false;
+
+
+        var old_x, old_y;
+
+        var dX=0, dY=0;
+        var mouseDown=function(e) {
+            drag=true;
+            old_x=e.pageX, old_y=e.pageY;
+            e.preventDefault();
+            return false;
+        }
+
+        var mouseUp=function(e){
+            drag=false;
+        }
+
+        var mouseMove=function(e) {
+            if (!drag) return false;
+            dX=(e.pageX-old_x)*2*Math.PI/CANVAS.width,
+                dY=(e.pageY-old_y)*2*Math.PI/CANVAS.height;
+            THETA+=dX;
+            PHI+=dY;
+            old_x=e.pageX, old_y=e.pageY;
+            e.preventDefault();
+        }
+
+        CANVAS.addEventListener("mousedown", mouseDown, false);
+        CANVAS.addEventListener("mouseup", mouseUp, false);
+        CANVAS.addEventListener("mouseout", mouseUp, false);
+        CANVAS.addEventListener("mousemove", mouseMove, false);
+
     /*========================= GET WEBGL CONTEXT ========================= */
     try {
         var GL = CANVAS.getContext("experimental-webgl", {antialias: true});
@@ -80,7 +113,7 @@ var main=function() {
 
     GL.useProgram(SHADER_PROGRAM);
 
-    var model = primitives.spiral(1,0.001,0.1,120,50);
+    var model = primitives.spiral(1,0.001,0.5,360,50);
 
     var CUBE_VERTEX= GL.createBuffer ();
     GL.bindBuffer(GL.ARRAY_BUFFER, CUBE_VERTEX);
@@ -101,9 +134,9 @@ var main=function() {
     var MOVEMATRIX=LIBS.get_I4();
     var VIEWMATRIX=LIBS.get_I4();
 
+    var THETA=0, PHI=0;
 
-
-    LIBS.translateZ(VIEWMATRIX, -6);
+    LIBS.translateZ(VIEWMATRIX, -50);
 
     /*========================= DRAWING ========================= */
     GL.enable(GL.DEPTH_TEST);
@@ -114,9 +147,14 @@ var main=function() {
     var time_old=0;
     var animate=function(time) {
         var dt=time-time_old;
-        LIBS.rotateZ(MOVEMATRIX, dt*0.0001);
-        LIBS.rotateY(MOVEMATRIX, dt*0.0002);
-        LIBS.rotateX(MOVEMATRIX, dt*0.0003);
+        if (!drag) {
+            dX*=AMORTIZATION, dY*=AMORTIZATION;
+            THETA+=dX, PHI+=dY;
+        }
+
+        LIBS.set_I4(MOVEMATRIX);
+        LIBS.rotateY(MOVEMATRIX, THETA);
+        LIBS.rotateX(MOVEMATRIX, PHI);
         time_old=time;
 
         GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height);

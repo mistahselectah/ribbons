@@ -309,15 +309,8 @@ var primitives = {
         }
         normals = this.getNormals(coords, faces);
 
-        for(var j = 0; j<coords.length;j+=3){
-            vertices.push(
-                coords[j],coords[j+1],coords[j+2],
-                colors[j],colors[j+1],colors[j+2],
-                normals[j],normals[j+1],normals[j+2]
-            );
-        }
 
-        return {vertices: vertices, faces: faces};
+        return {vertices: [], coords: coords, colors:colors, normals: normals, faces: faces};
     },
 
     cylinder: function(radius, height, rate){
@@ -484,7 +477,6 @@ var primitives = {
         return model;
     },
 
-
     spiral: function(rStart, rOffset,height,rate,count){
         var vertices = [];
         var coords = [];
@@ -496,20 +488,23 @@ var primitives = {
 
         var up =true;
         for(var i = 0; i<rate*count; i++){
+            //lollypop ))
+            var sRadius =  Math.sin(LIBS.degToRad(360/rate/count*i));
 
             zOffset+=0.001;
-            if(up){
-                radius+=rOffset;
+            radius += sRadius/100;
+
+            /*if(up){
+                radius += rOffset;
                 up = i<rate*count/2;
+                if(!up)console.log(radius);
             }else{
+                radius -= rOffset;
+            }*/
 
-                radius-=rOffset;
-            }
-                nextStart = 0;
-
-
-            var angle = LIBS.degToRad(360/rate*i);
+            //console.log(Math.sin(angle));
             //var color = LIBS.hsvToRgb(360*i,100,100);
+            var angle = LIBS.degToRad(360/rate*i);
             var x = Math.sin(angle)*radius;
             var y =  Math.cos(angle)*radius;
             var z = height/2;
@@ -541,6 +536,64 @@ var primitives = {
 
         return {vertices: vertices, faces: faces};
     },
+
+    spiralFlower: function(rStart, rOffset,height,rate,count){
+            var vertices = [];
+            var coords = [];
+            var colors = [];
+            var faces = [];
+            var normals = [];
+            var radius = 0.1;
+            var zOffset = rate*count/2*-0.001;
+
+            var up =true;
+            for(var i = 0; i<rate*count; i++){
+                //lollypop ))
+                var sRadius =  Math.sin(LIBS.degToRad(rate/count*i));
+
+                zOffset+=0.001;
+
+                if(up){
+                    radius += sRadius;
+                    up = i<rate*count/2;
+                }else{
+                    radius -= sRadius;
+                }
+
+                //console.log(Math.sin(angle));
+                //var color = LIBS.hsvToRgb(360*i,100,100);
+                var angle = LIBS.degToRad(360/rate*i);
+                var x = Math.sin(angle)*radius;
+                var y =  Math.cos(angle)*radius;
+                var z = height/2;
+                //vertice coords
+                coords.push(x, y, z+zOffset);
+                colors.push(Math.abs(x), Math.abs(y),Math.abs(z));
+
+                coords.push(x, y, -1*z+zOffset);
+                colors.push(Math.abs(x), Math.abs(y),Math.abs(z));
+
+                if(i<rate*count-2){
+                    faces.push(i*2, i*2+1,i*2+2);
+                    faces.push(i*2+2, i*2+1, i*2+3);
+                }else{
+
+                }
+
+            }
+
+            normals = this.getNormals(coords, faces);
+
+            for(var j = 0; j<coords.length;j+=3){
+                vertices.push(
+                    coords[j],coords[j+1],coords[j+2],
+                    colors[j],colors[j+1],colors[j+2],
+                    normals[j],normals[j+1],normals[j+2]
+                );
+            }
+
+            return {vertices: vertices, faces: faces};
+        },
 
     sphere: function(radius, smoothness){
 

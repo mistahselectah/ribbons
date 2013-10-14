@@ -114,23 +114,23 @@ var main=function() {
     GL.useProgram(SHADER_PROGRAM);
 
     //var model = primitives.triangle(2,0);
-    var model = primitives.spiral(1,0.001,0.1,360,100);
-    for (var i = 0; i < 2; i++){
-        //primitives.subdivideFaces(model.coords, model.colors, model.faces,[], true);
+    var model = primitives.cone(2,2,3);
+    for (var i = 0; i < 1; i++){
+        primitives.subdivideFaces(model.coords, model.colors, model.faces,[], true);
     }
     console.log(model);
 
-    //model.vertices = primitives.prepareVertices(model);
+    model.vertices = primitives.prepareVertices(model);
 
-    var CUBE_VERTEX= GL.createBuffer ();
-    GL.bindBuffer(GL.ARRAY_BUFFER, CUBE_VERTEX);
+    var vBuffer = GL.createBuffer ();
+    GL.bindBuffer(GL.ARRAY_BUFFER, vBuffer);
     GL.bufferData(GL.ARRAY_BUFFER,
         new Float32Array(model.vertices),
         GL.STATIC_DRAW);
 
 
-    var CUBE_FACES= GL.createBuffer ();
-    GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, CUBE_FACES);
+    var fBuffer = GL.createBuffer ();
+    GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, fBuffer);
     GL.bufferData(GL.ELEMENT_ARRAY_BUFFER,
         new Uint16Array(model.faces),
         GL.STATIC_DRAW);
@@ -144,7 +144,7 @@ var main=function() {
     var THETA=0,
            PHI=0;
 
-    LIBS.translateZ(VIEWMATRIX, -30);
+    LIBS.translateZ(VIEWMATRIX, -10);
 
     /*========================= DRAWING ========================= */
     GL.enable(GL.DEPTH_TEST);
@@ -172,10 +172,10 @@ var main=function() {
         GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
         GL.vertexAttribPointer(_position, 3, GL.FLOAT, false,4*9,0) ;
         GL.vertexAttribPointer(_color, 3, GL.FLOAT, false,4*9,3*4) ;
-        GL.bindBuffer(GL.ARRAY_BUFFER, CUBE_VERTEX);
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, CUBE_FACES);
+        GL.bindBuffer(GL.ARRAY_BUFFER, vBuffer);
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, fBuffer);
         GL.drawElements(GL.TRIANGLES, model.faces.length, GL.UNSIGNED_SHORT, 0);
-        //GL.drawArrays(GL.POINTS,0, model.vertices.length/9);
+        GL.drawArrays(GL.POINTS,0, model.vertices.length/9);
 
         GL.flush();
 
