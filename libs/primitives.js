@@ -71,6 +71,7 @@ var primitives = {
             c = this.getCoords(coords, faces[j+2]);
 
             normal = this.getNormal(a,b,c);
+            this.normalize(normal);
             normals.push(normal[0],normal[1],normal[2]);
             normals.push(normal[0],normal[1],normal[2]);
             normals.push(normal[0],normal[1],normal[2]);
@@ -317,6 +318,7 @@ var primitives = {
             colors.push(1, 0,0);
             faces.push(0, i+1,i<rate-1?i+2:1);
         }
+        faces.push(1, 2,3);
         normals = this.getNormals(coords, faces);
 
 
@@ -372,8 +374,8 @@ var primitives = {
             else{
                 var facesLength = model.faces.length;
                 var cylinder = this.cylinder(radius,height,rateFactor);
-                for(var vi = 0; vi<cylinder.vertices.length; vi++){
-                    model.vertices.push(cylinder.vertices[vi]);
+                for(var vi = 0; vi<cylinder.coords.length; vi++){
+                    model.coords.push(cylinder.coords[vi]);
                 }
 
                 for(var fi = 0; fi<cylinder.faces.length; fi++){
@@ -594,7 +596,7 @@ var primitives = {
                 );
             }
 
-            return {vertices: vertices, faces: faces};
+        return {coords: coords, colors: colors, normals: normals, faces: faces};
         },
 
     sphere: function(radius, smoothness){

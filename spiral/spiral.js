@@ -117,8 +117,9 @@ var main=function() {
     GL.useProgram(SHADER_PROGRAM);
 
     //var model = primitives.spiral(0.1,0.001,0.5,360,100);
-    var model = primitives.spiralFlower(0.1,0.001,0.5,360,100);
-
+    var model = primitives.spiralFlower(0.1,0.005,5,4,100);
+    primitives.normalize(model.normals);
+    model.vertices = primitives.prepareVertices(model);
     var vertexBuffer= GL.createBuffer ();
     GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
     GL.bufferData(GL.ARRAY_BUFFER,
@@ -140,7 +141,7 @@ var main=function() {
 
     var THETA=0, PHI=0;
 
-    LIBS.translateZ(VIEWMATRIX, -50);
+    LIBS.translateZ(VIEWMATRIX, -25);
 
     /*========================= DRAWING ========================= */
     //GL.enable(GL.DEPTH_TEST);

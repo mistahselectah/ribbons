@@ -210,10 +210,10 @@ var main=function() {
 
     var vertexBuffer= GL.createBuffer ();
     var facesBuffer = GL.createBuffer ();
-    var count = 1;
-    var rate = 4;
+    var count = 10;
+    var rate = 90;
     var zFactor = 1;
-    var model = primitives.cylinders(10,5,rate,count);
+    var model = primitives.cylinders(1,1,rate,count);
     //primitives.normalize(model.normals);
     model.vertices = primitives.prepareVertices(model);
 

@@ -192,7 +192,7 @@ var main=function() {
     var THETA=0,
         PHI=0;
 
-    LIBS.translateZ(VIEWMATRIX, -30);
+    LIBS.translateZ(VIEWMATRIX, -50);
 
     /*========================= DRAWING ========================= */
     GL.enable(GL.DEPTH_TEST);
@@ -203,15 +203,20 @@ var main=function() {
     GL.clearDepth(1.0);
 
     var vertexBuffer= GL.createBuffer ();
+    GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
     var facesBuffer = GL.createBuffer ();
+    GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, facesBuffer);
+
+
 
     var time_old=0;
-    var rate = 36;
+    var rate = 3;
     var elCount = 1;
 
     var model = primitives.cylinders(10,10,rate,elCount);
     //primitives.normalize(model.normals);
     model.vertices = primitives.prepareVertices(model);
+    //model.vertices.push(0,1,5,1,1,1,0,0,0);
     var animate=function(time) {
 
         var dt=time-time_old;
@@ -231,7 +236,7 @@ var main=function() {
         GL.uniformMatrix4fv(_Pmatrix, false, PROJMATRIX);
         GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
         GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
-        GL.uniform3f(_wsLightPosition, 10,10,0);
+        GL.uniform3f(_wsLightPosition, 0,1,10);
         GL.uniform1f(_alpha,0.8);
 
         if(magnitude){
@@ -241,18 +246,16 @@ var main=function() {
             $('#magnitude').children().slice(15).remove();
         }
 
-        GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
         GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(model.vertices), GL.STATIC_DRAW);
 
         GL.vertexAttribPointer(_position, 3, GL.FLOAT, false,4*9,0) ;
         GL.vertexAttribPointer(_color, 3, GL.FLOAT, false,4*9,3*4) ;
         GL.vertexAttribPointer(_normal, 3, GL.FLOAT, false,4*9,6*4);
 
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, facesBuffer);
         GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(model.faces), GL.STATIC_DRAW);
 
         GL.drawElements(GL.TRIANGLES, model.faces.length, GL.UNSIGNED_SHORT, 0);
-
+        //GL.drawArrays(GL.POINTS,model.vertices.length/9-1,1);
         GL.flush();
 
         window.requestAnimationFrame(animate);

@@ -46,6 +46,7 @@
             csNormal = ( Vmatrix * Mmatrix * vec4(normal,0)).xyz; // Only correct if ModelMatrix does not scale the model ! Use its inverse transpose if not.
 
             vColor=color;
+            gl_PointSize = 10.;
 
         }
     </script>
@@ -68,11 +69,11 @@
             // Light emission properties
         	// You probably want to put them as uniforms
         	vec3 lColor = vec3(0.5,0.5,0.5);
-        	float lPower = 1000.0;
+        	float lPower = 100.0;
 
         	// Material properties
         	vec3 MaterialDiffuseColor = vColor;
-        	vec3 MaterialAmbientColor = vec3(0.1,0.1,0.1) * MaterialDiffuseColor;
+        	vec3 MaterialAmbientColor = vec3(0.5,0.5,0.5) * MaterialDiffuseColor;
         	vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);
 
         	// Distance to the light

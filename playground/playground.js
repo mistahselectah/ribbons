@@ -124,11 +124,12 @@ var main=function() {
     model.vertices = primitives.prepareVertices(model);
 
     var vBuffer = GL.createBuffer ();
+
     GL.bindBuffer(GL.ARRAY_BUFFER, vBuffer);
+
     GL.bufferData(GL.ARRAY_BUFFER,
         new Float32Array(model.vertices),
         GL.STATIC_DRAW);
-
 
     var fBuffer = GL.createBuffer ();
     GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, fBuffer);
@@ -174,9 +175,10 @@ var main=function() {
         GL.vertexAttribPointer(_position, 3, GL.FLOAT, false,4*9,0) ;
         GL.vertexAttribPointer(_color, 3, GL.FLOAT, false,4*9,3*4) ;
         GL.bindBuffer(GL.ARRAY_BUFFER, vBuffer);
+
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, fBuffer);
         GL.drawElements(GL.TRIANGLES, model.faces.length, GL.UNSIGNED_SHORT, 0);
-        GL.drawArrays(GL.POINTS,0, model.vertices.length/9);
+        //GL.drawArrays(GL.LINES, 0, model.vertices.length/9)
 
         GL.flush();
 
