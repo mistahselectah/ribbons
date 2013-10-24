@@ -1,5 +1,9 @@
 var primitives = {
 
+    length: function(vector){
+        return Math.sqrt(Math.pow(vector[0],2)+Math.pow(vector[1],2)+Math.pow(vector[2],2));
+    },
+
     normalize: function(normals){
         var x, y, z, a;
         for(var i = 0; i<normals.length/3;i+=3){
@@ -71,7 +75,7 @@ var primitives = {
             c = this.getCoords(coords, faces[j+2]);
 
             normal = this.getNormal(a,b,c);
-            this.normalize(normal);
+            //this.normalize(normal);
             normals.push(normal[0],normal[1],normal[2]);
             normals.push(normal[0],normal[1],normal[2]);
             normals.push(normal[0],normal[1],normal[2]);
@@ -232,11 +236,53 @@ var primitives = {
             (a[2]+b[2])/2
         ];
 
+        var radius  = this.length(a);
+        var lengthM = this.length(midpoint);
+        midpoint[0] *= radius/lengthM;
+        midpoint[1] *= radius/lengthM;
+        midpoint[2] *= radius/lengthM;
+
         index = coords.length/3;
         coords.push(midpoint[0],midpoint[1],midpoint[2]);
         hashes.push({hash: hash, index: index});
 
         return index;
+    },
+
+    subdivideIcosahedra: function(model){
+        var hashes=[];
+        var facesLength = model.faces.length;
+        var newFaces = [];
+
+        for(var i = 0;i<facesLength-2;i+=3){
+            var a, b, c, r, g, b, m01, m12, m02;
+
+            var i0 = model.faces[i];
+            var i1 = model.faces[i + 1];
+            var i2 = model.faces[i + 2];
+
+
+            m01  = this.getMidPointIndex(hashes, model.coords,i0,i1);
+            m12  = this.getMidPointIndex(hashes, model.coords,i1,i2);
+            m02  = this.getMidPointIndex(hashes, model.coords,i0,i2);
+
+            r = Math.abs(1);
+            g = Math.abs(0);
+            b = Math.abs(1);
+
+            model.colors.push(r,g, b);
+            model.colors.push(r,g, b);
+            model.colors.push(r, g, b);
+
+            newFaces.push(
+                i0,m01,m02,
+                i1,m12,m01,
+                i2,m02,m12,
+                m02,m01,m12
+            );
+        }
+        var normals = this.getNormals(model.coords, model.faces);
+        return {coords: model.coords, colors: model.colors, faces: newFaces, normals: normals};
     },
 
     subdivideFaces: function(model){
@@ -318,9 +364,8 @@ var primitives = {
             colors.push(1, 0,0);
             faces.push(0, i+1,i<rate-1?i+2:1);
         }
-        faces.push(1, 2,3);
-        normals = this.getNormals(coords, faces);
 
+        normals = this.getNormals(coords, faces);
 
         return {vertices: [], coords: coords, colors:colors, normals: normals, faces: faces};
     },
