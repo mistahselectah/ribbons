@@ -433,7 +433,7 @@ var primitives = {
         return model;
     },
 
-    icosahedron: function(radius){
+    icosahedron: function(radius, level){
         var sqr5 = 2.2361;
         var phi = (1.0 + sqr5) * 0.5;
 
@@ -488,16 +488,14 @@ var primitives = {
             4, 8, 10
         ];
 
-        var normals = this.getNormals(coords,faces);
-        var vertices = [];
-        for(var j = 0; j<coords.length;j+=3){
-            vertices.push(
-                coords[j],coords[j+1],coords[j+2],
-                colors[j],colors[j+1],colors[j+2],
-                normals[j],normals[j+1],normals[j+2]
-            );
+        var model = {coords: coords, colors: colors, faces: faces};
+        for (var i = 0; i < level; i++){
+            model =  primitives.subdivideFaces(model);
         }
-        return {coords: coords, colors: colors, normals: normals, faces: faces};
+
+        model.normals = this.getNormals(model.coords,model.faces);
+
+        return model;
 
     },
 

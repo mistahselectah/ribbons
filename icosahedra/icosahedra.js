@@ -137,19 +137,19 @@ var main=function() {
     GL.clearColor(0.0, 0.0, 0.0, 0.0);
     GL.clearDepth(1.0);
     var time_old=0;
+    var lightPosition = [5,5,5];
 
 
     var vertexBuffer= GL.createBuffer ();
     var facesBuffer = GL.createBuffer ();
 
 
-    var model = primitives.icosahedron(5);
-    for (var i = 0; i < 3; i++){
-        model =primitives.subdivideFaces(model);
-    }
+    var model = primitives.icosahedron(5,4);
 
-    primitives.normalize(model.normals);
+    //primitives.normalize(model.normals);
     model.vertices = primitives.prepareVertices(model);
+    model.vertices.push.apply(model.vertices, lightPosition);
+    model.vertices.push.apply(model.vertices, [1,1,1,0,0,0]);
     var animate=function(time) {
 
         var dt=time-time_old;
@@ -169,7 +169,7 @@ var main=function() {
         GL.uniformMatrix4fv(_Pmatrix, false, PROJMATRIX);
         GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
         GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
-        GL.uniform3f(_wsLightPosition, 0,0,5);
+        GL.uniform3f(_wsLightPosition, lightPosition[0],lightPosition[1],lightPosition[2]);
 
         GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
         GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(model.vertices), GL.STATIC_DRAW);
@@ -184,6 +184,7 @@ var main=function() {
         GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(model.faces), GL.STATIC_DRAW);
 
         GL.drawElements(GL.TRIANGLES, model.faces.length, GL.UNSIGNED_SHORT, 0);
+        GL.drawArrays(GL.POINTS,0,model.vertices.length/9);
 
         GL.flush();
 
