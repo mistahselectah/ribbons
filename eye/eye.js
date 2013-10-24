@@ -199,12 +199,12 @@ var main=function() {
     function colorOffset(vertices, rate, index, magnitude){
        for(var i = 3; i<rate*18; i+=18){
            //var color = ;;
-           vertices[index*rate*18+i]    = Math.abs(Math.sin(LIBS.degToRad(magnitude)));
-           vertices[index*rate*18+i+1]  = Math.abs(Math.cos(LIBS.degToRad(magnitude)));
-           vertices[index*rate*18+i+2]  = Math.abs(Math.tan(LIBS.degToRad(magnitude)));
-           vertices[index*rate*18+i+11]    = Math.abs(Math.cos(LIBS.degToRad(magnitude)));
-           vertices[index*rate*18+i+1+11]  = Math.abs(Math.tan(LIBS.degToRad(magnitude)));
-           vertices[index*rate*18+i+2+11]  = Math.abs(Math.sin(LIBS.degToRad(magnitude)));
+           vertices[index*rate*18+i]    = Math.abs(Math.sin(magnitude));
+           vertices[index*rate*18+i+1]  = Math.abs(Math.cos(magnitude));
+           vertices[index*rate*18+i+2]  = Math.abs(Math.tan(magnitude));
+           vertices[index*rate*18+i+11]    = Math.abs(Math.cos(magnitude));
+           vertices[index*rate*18+i+1+11]  = Math.abs(Math.tan(magnitude));
+           vertices[index*rate*18+i+2+11]  = Math.abs(Math.sin(magnitude));
        }
     }
 
@@ -252,7 +252,7 @@ var main=function() {
             for(var  i = 0; i<interpolation; i++){
                 if(vertices[itemIndex])
                 zOffset(vertices,rate,itemIndex+i,currentMagnitude*10);
-                colorOffset(vertices,rate,itemIndex+i,currentMagnitude*10);
+                colorOffset(vertices,rate,itemIndex+i,currentMagnitude/100);
             }
 
             if(itemIndex<count){

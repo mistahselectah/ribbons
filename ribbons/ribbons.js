@@ -192,13 +192,13 @@ var main=function() {
     var THETA=0,
         PHI=0;
 
-    LIBS.translateZ(VIEWMATRIX, -50);
+    LIBS.translateZ(VIEWMATRIX, -10);
 
     /*========================= DRAWING ========================= */
-    GL.enable(GL.DEPTH_TEST);
-    GL.depthFunc(GL.LESS);
-    //GL.enable(GL.BLEND);
-    //GL.blendFunc(GL.SRC_ALPHA, GL.ONE);
+    //GL.enable(GL.DEPTH_TEST);
+    //GL.depthFunc(GL.LEQUAL);
+    GL.enable(GL.BLEND);
+    GL.blendFunc(GL.SRC_ALPHA, GL.ONE);
     GL.clearColor(0.0, 0.0, 0.0, 0.0);
     GL.clearDepth(1.0);
 
@@ -213,7 +213,7 @@ var main=function() {
     var rate = 3;
     var elCount = 1;
 
-    var model = primitives.cylinders(10,10,rate,elCount);
+    var model = primitives.cylinders(1,1,rate,elCount);
     //primitives.normalize(model.normals);
     model.vertices = primitives.prepareVertices(model);
     //model.vertices.push(0,1,5,1,1,1,0,0,0);
@@ -236,7 +236,7 @@ var main=function() {
         GL.uniformMatrix4fv(_Pmatrix, false, PROJMATRIX);
         GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
         GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
-        GL.uniform3f(_wsLightPosition, 0,1,10);
+        GL.uniform3f(_wsLightPosition, 0,1,2);
         GL.uniform1f(_alpha,0.8);
 
         if(magnitude){

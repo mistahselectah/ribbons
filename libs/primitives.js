@@ -236,11 +236,11 @@ var primitives = {
             (a[2]+b[2])/2
         ];
 
-        var radius  = this.length(a);
+        /*var radius  = this.length(a);
         var lengthM = this.length(midpoint);
         midpoint[0] *= radius/lengthM;
         midpoint[1] *= radius/lengthM;
-        midpoint[2] *= radius/lengthM;
+        midpoint[2] *= radius/lengthM;*/
 
         index = coords.length/3;
         coords.push(midpoint[0],midpoint[1],midpoint[2]);
@@ -281,8 +281,8 @@ var primitives = {
                 m02,m01,m12
             );
         }
-        var normals = this.getNormals(model.coords, model.faces);
-        return {coords: model.coords, colors: model.colors, faces: newFaces, normals: normals};
+        model.normals.push.apply(model.normals, this.getNormals(model.coords, model.faces));
+        return model;
     },
 
     subdivideFaces: function(model){
@@ -317,8 +317,8 @@ var primitives = {
                 m02,m01,m12
             );
         }
-        var normals = this.getNormals(model.coords, model.faces);
-        return {coords: model.coords, colors: model.colors, faces: newFaces, normals: normals};
+        model.normals.push.apply(model.normals, this.getNormals(model.coords, model.faces));
+        return {coords: model.coords, colors: model.colors, faces: newFaces, normals: model.normals};
     },
 
     triangle: function(radius, z){
@@ -399,6 +399,11 @@ var primitives = {
                 faces.push(i*2, i*2+1,0);
                 faces.push(i*2+1, 0,1);
             }
+        }
+
+        for(var i = 0; i<coords.length;i++){
+            var c = coords[i] *= radius+1/radius;
+            model.normals.push(c)
         }
 
         normals = this.getNormals(coords, faces);
@@ -488,13 +493,16 @@ var primitives = {
             4, 8, 10
         ];
 
-        var model = {coords: coords, colors: colors, faces: faces};
+        var model = {coords: coords, colors: colors, faces: faces, normals: []};
         for (var i = 0; i < level; i++){
             model =  primitives.subdivideFaces(model);
         }
 
-        model.normals = this.getNormals(model.coords,model.faces);
-
+        //model.normals = this.getNormals(model.coords,model.faces);
+        for(var i = 0; i<coords.length;i++){
+            var c = coords[i] *= radius+1/radius;
+            model.normals.push(c)
+        }
         return model;
 
     },
