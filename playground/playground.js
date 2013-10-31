@@ -116,7 +116,8 @@ var main=function() {
 
     GL.useProgram(SHADER_PROGRAM);
 
-    var mesh = primitives.icosahedron(2,1);
+    var mesh = primitives.icosahedron(2,3);
+    console.log(mesh)
 
     for(var i=0;i<mesh.normals.length;i+=3){
         mesh.vertices.push.apply(mesh.vertices,[mesh.normals[i],mesh.normals[i+1],mesh.normals[i+2]])
@@ -167,7 +168,7 @@ var main=function() {
         GL.uniformMatrix4fv(_Pmatrix, false, PROJMATRIX);
         GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
         GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
-        GL.uniform3f(_wsLightPosition, 0,0,3);
+        GL.uniform3f(_wsLightPosition, PHI,THETA,3);
 
         GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(mesh.vertices), GL.STATIC_DRAW);
 

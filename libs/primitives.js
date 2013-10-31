@@ -251,14 +251,6 @@ var primitives = {
             -1*(ib), -1*(ia),0
         ];
 
-
-        for(var i=0;i<mesh.coords.length;i+=3){
-
-            mesh.colors.push(0.5,0,0.5);
-            mesh.colors.push(0.5,0.5,0);
-            mesh.colors.push(0,0.5,0.5);
-        }
-
         mesh.faces = [
             0, 1, 2,
             3, 2, 1,
@@ -284,6 +276,9 @@ var primitives = {
 
         for(var i = 0; i<divisions;i++){
             mesh.subdivideFaces();
+        }
+        for(var i=0;i<mesh.coords.length;i+=3){
+            mesh.colors.push(0.5,0,0.5);
         }
         //model.normals = this.getNormals(model.coords,model.faces);
         for(var i = 0; i<mesh.coords.length;i++){

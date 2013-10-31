@@ -119,44 +119,28 @@ var Mesh = function(){
 
     this.subdivideFaces =  function(){
         var hashes=[];
-        var facesLength = this.faces.length;
+        var oldFaces = this.faces;
         var newFaces = [];
 
-        for(var i = 0;i<facesLength-2;i+=3){
+        for(var i = 0;i<oldFaces.length-2;i+=3){
             var a, b, c, r, g, b, m01, m12, m02;
 
-            var i0 = this.faces[i];
-            var i1 = this.faces[i + 1];
-            var i2 = this.faces[i + 2];
-
+            var i0 = oldFaces[i];
+            var i1 = oldFaces[i + 1];
+            var i2 = oldFaces[i + 2];
 
             m01  = this.getMidPointIndex(hashes, i0,i1);
             m12  = this.getMidPointIndex(hashes, i1,i2);
             m02  = this.getMidPointIndex(hashes, i0,i2);
 
-            r = Math.abs(1);
-            g = Math.abs(0);
-            b = Math.abs(1);
-
-            this.colors.push(r,g, b);
-            this.colors.push(r,g, b);
-            this.colors.push(r, g, b);
-
-            /*newFaces.splice(i,3,
-                i0,m01,m02,
-                i1,m12,m01,
-                i2,m02,m12,
-                m02,m01,m12
-            );*/
-
-            this.faces.push(
+            newFaces.push(
                 i0,m01,m02,
                 i1,m12,m01,
                 i2,m02,m12,
                 m02,m01,m12
             );
-
-
         }
+        this.faces.splice(0, this.faces.length);
+        this.faces.push.apply(this.faces,newFaces);
     }
 }
