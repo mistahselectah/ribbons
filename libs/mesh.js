@@ -36,9 +36,6 @@ var Mesh = function(){
             normal = this.getNormal(a,b,c);
             //this.normalize(normal);
             this.normals.push.apply(this.normals, normal);
-            this.normals.push.apply(this.normals, normal);
-            this.normals.push.apply(this.normals, normal);
-
         }
     }
 

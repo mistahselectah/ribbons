@@ -145,11 +145,7 @@ var main=function() {
 
 
     //var model = primitives.icosahedron(5,4);
-    var model = primitives.icosahedron(3,4);
-
-    //primitives.normalize(model.normals);
-    model.vertices = primitives.prepareVertices(model);
-
+    var mesh = primitives.icosahedron(3,4);
 
     var animate=function(time) {
 

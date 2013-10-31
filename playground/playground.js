@@ -117,15 +117,20 @@ var main=function() {
     GL.useProgram(SHADER_PROGRAM);
 
     //var model = primitives.triangle(2,0);
-    var mesh = primitives.cone(2,2,3);
+    var mesh = primitives.cylinder(2,3,36);
+    for(var i=0;i<mesh.normals.length;i+=3){
+        mesh.vertices.push.apply(mesh.vertices,[mesh.normals[i],mesh.normals[i+1],mesh.normals[i+2]])
+        mesh.vertices.push.apply(mesh.vertices,[1,1,1])
+        mesh.vertices.push.apply(mesh.vertices,[mesh.normals[i],mesh.normals[i+1],mesh.normals[i+2]])
+    }
     //mesh.subdivideFaces(3);
     mesh.prepare();
-    var verticesLength = mesh.vertices.length;
+    /*var verticesLength = mesh.vertices.length;
     for(var i  = 0; i<mesh.normals.length;i++){
         mesh.vertices.push(mesh.normals[i])
         mesh.vertices.push(mesh.colors[i])
         mesh.vertices.push(mesh.normals[i])
-    }
+    }*/
 
     var vBuffer = GL.createBuffer ();
     GL.bindBuffer(GL.ARRAY_BUFFER, vBuffer);
@@ -145,10 +150,10 @@ var main=function() {
     LIBS.translateZ(VIEWMATRIX, -10);
 
     /*========================= DRAWING ========================= */
-    //GL.enable(GL.DEPTH_TEST);
-    //GL.depthFunc(GL.LESS);
-    GL.enable(GL.BLEND);
-    GL.blendFunc(GL.SRC_ALPHA, GL.ONE);
+    GL.enable(GL.DEPTH_TEST);
+    GL.depthFunc(GL.LESS);
+    //GL.enable(GL.BLEND);
+    //GL.blendFunc(GL.SRC_ALPHA, GL.ONE);
     GL.clearColor(0.0, 0.0, 0.0, 0.0);
     GL.clearDepth(1.0);
 
@@ -170,7 +175,7 @@ var main=function() {
         GL.uniformMatrix4fv(_Pmatrix, false, PROJMATRIX);
         GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
         GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
-        GL.uniform3f(_wsLightPosition, 0,0,5);
+        GL.uniform3f(_wsLightPosition, 0,0,3);
 
         GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(mesh.vertices), GL.STATIC_DRAW);
 
@@ -181,8 +186,9 @@ var main=function() {
         GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(mesh.faces), GL.STATIC_DRAW);
 
         GL.drawElements(GL.TRIANGLES, mesh.faces.length, GL.UNSIGNED_SHORT, 0);
-        GL.drawArrays(GL.LINES, verticesLength, mesh.vertices.length/9-verticesLength/9)
-        GL.drawArrays(GL.POINTS, verticesLength, mesh.vertices.length/9-verticesLength/9)
+        //GL.drawArrays(GL.LINES, verticesLength, mesh.vertices.length/9-verticesLength/9)
+
+        GL.drawArrays(GL.POINTS, mesh.coords.length/3, mesh.coords.length/3)
 
         GL.flush();
 

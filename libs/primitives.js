@@ -114,9 +114,27 @@ var primitives = {
         }
 
         return {vertices: vertices, faces: faces};
+    },
 
+    pyramid: function(radius){
+        var mesh = new Mesh();
+        mesh.coords.push(0,0,height/2);
+        mesh.colors.push(0,0,1)
+        var z = -1*height/2;
+        for(var i = 0; i<4; i++){
+            var angle = LIBS.degToRad(360/rate*i);
+            var x = Math.sin(angle)*radius;
+            var y =  Math.cos(angle)*radius;
+            //vertice coords
+            mesh.coords.push(x, y, z);
+            //color for vertice
+            mesh.colors.push(1, 0,0);
+            mesh.faces.push(0, i+1,i<rate-1?i+2:1);
+        }
 
+        mesh.getNormals();
 
+        return mesh;
     },
 
     cone: function(radius, height, rate){
@@ -135,17 +153,17 @@ var primitives = {
             mesh.faces.push(0, i+1,i<rate-1?i+2:1);
         }
 
-        mesh.getNormals();
-
+        //mesh.getNormals();
+        for(var i = 0; i<mesh.coords.length;i++){
+            var c = mesh.coords[i] + mesh.coords[i]/radius;
+            mesh.normals.push(c)
+        }
+        mesh.prepare();
         return mesh;
     },
 
     cylinder: function(radius, height, rate){
-        var vertices = [];
-        var coords = [];
-        var colors = [];
-        var faces = [];
-        var normals = [];
+        var mesh = new Mesh();
 
         for(var i = 0; i<rate; i++){
             var angle = LIBS.degToRad(360/rate*i);
@@ -154,31 +172,31 @@ var primitives = {
             var y =  Math.cos(angle)*radius;
             var z = height/2;
             //vertice coords
-            coords.push(x, y, z);
+            mesh.coords.push(x, y, z);
             //colors.push(color[0], color[1],color[3]);
-            colors.push(0, 0,1);
+            mesh.colors.push(0, 0,1);
 
-            coords.push(x, y, -1*z);
+            mesh.coords.push(x, y, -1*z);
             //colors.push(color[0], color[1],color[3]);
-            colors.push(1, 0,0);
+            mesh.colors.push(1, 0,0);
 
             if(i<rate-1){
-                faces.push(i*2, i*2+1,i*2+2);
-                faces.push(i*2+2, i*2+1, i*2+3);
+                mesh.faces.push(i*2, i*2+1,i*2+2);
+                mesh.faces.push(i*2+2, i*2+1, i*2+3);
             }else{
-                faces.push(i*2, i*2+1,0);
-                faces.push(i*2+1, 0,1);
+                mesh.faces.push(i*2, i*2+1,0);
+                mesh.faces.push(i*2+1, 0,1);
             }
         }
 
-        for(var i = 0; i<coords.length;i++){
-            var c = coords[i] *= radius+1/radius;
-            model.normals.push(c)
+        for(var i = 0; i<mesh.coords.length;i++){
+            var c = mesh.coords[i] + mesh.coords[i]/radius;
+            mesh.normals.push(c)
         }
 
-        normals = this.getNormals(coords, faces);
-
-        return {vertices: [], coords: coords, colors:colors, normals: normals, faces: faces};
+        //mesh.getNormals(mesh.coords, mesh.faces);
+        mesh.prepare();
+        return mesh;
     },
 
     cylinders: function(rFactor, hFactor, rateFactor, count){
@@ -208,7 +226,7 @@ var primitives = {
         return model;
     },
 
-    icosahedron: function(radius, level){
+    icosahedron: function(radius, divisions){
         var sqr5 = 2.2361;
         var phi = (1.0 + sqr5) * 0.5;
 
@@ -216,8 +234,8 @@ var primitives = {
         var ratio = Math.sqrt( 10.0 + (2.0 * sqr5)) / (4.0 * phi);
         var ia = (radius / ratio) * 0.5;
         var ib = (radius / ratio) / (2.0 * phi);
-
-        var coords = [
+        var mesh = new Mesh();
+        mesh.coords = [
             0,(ib),-1*(ia),
             (ib), (ia), 0,
             -1*(ib), (ia), 0,
@@ -232,15 +250,15 @@ var primitives = {
             -1*(ib), -1*(ia),0
         ];
 
-        var colors = [];
-        for(var i=0;i<coords.length;i+=3){
 
-            colors.push(0.5,0.5,0.5);
-            colors.push(0.5,0.5,0.5);
-            colors.push(0.5,0.5,0.5);
+        for(var i=0;i<mesh.coords.length;i+=3){
+
+            mesh.colors.push(0.5,0.5,0.5);
+            mesh.colors.push(0.5,0.5,0.5);
+            mesh.colors.push(0.5,0.5,0.5);
         }
 
-        var faces = [
+        mesh.faces = [
             0, 1, 2,
             3, 2, 1,
             3, 4, 5,
@@ -263,17 +281,17 @@ var primitives = {
             4, 8, 10
         ];
 
-        var model = {coords: coords, colors: colors, faces: faces, normals: []};
-        for (var i = 0; i < level; i++){
-            model =  primitives.subdivideFaces(model);
+
+        for (var i = 0; i < divisions; i++){
+            mesh.subdivideFaces();
         }
 
         //model.normals = this.getNormals(model.coords,model.faces);
-        for(var i = 0; i<coords.length;i++){
-            var c = coords[i] *= radius+1/radius;
-            model.normals.push(c)
+        for(var i = 0; i<mesh.coords.length;i++){
+            var c = mesh.coords[i] * (1+1/radius);
+            mesh.normals.push(c)
         }
-        return model;
+        return mesh;
 
     },
 
