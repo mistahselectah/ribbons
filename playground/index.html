@@ -4,6 +4,7 @@
     <meta charset='utf-8'/>
     <script type="text/javascript" src="../libs/libs.js"></script>
     <script type="text/javascript" src="../libs/primitives.js"></script>
+    <script type="text/javascript" src="../libs/mesh.js"></script>
     <script type="text/javascript" src="playground.js"></script>
 
     <script id="color-shader-vs" type="x-shader/x-vertex">
@@ -68,6 +69,7 @@
         csNormal = ( Vmatrix * Mmatrix * vec4(normal,0)).xyz; // Only correct if ModelMatrix does not scale the model ! Use its inverse transpose if not.
 
         vColor=color;
+        gl_PointSize = 5.;
 
         }
     </script>

@@ -1,120 +1,24 @@
 var primitives = {
 
-    length: function(vector){
-        return Math.sqrt(Math.pow(vector[0],2)+Math.pow(vector[1],2)+Math.pow(vector[2],2));
-    },
 
-    normalize: function(normals){
-        var x, y, z, a;
-        for(var i = 0; i<normals.length/3;i+=3){
-            x = normals[i];
-            y = normals[i+1];
-            z = normals[i+2];
-            a = Math.sqrt(Math.pow(x,2)+Math.pow(y,2)+Math.pow(z,2));
-            normals.splice(i,3,a*x/Math.abs(a),a*y/Math.abs(a),a*z/Math.abs(a));
-        }
-    },
+    triangle: function(radius, z){
+        var x, y;
+        var mesh = new Mesh();
+        var hashes = [];
 
-    prepareVertices: function(model){
-        var vertices = [];
-        for(var j = 0; j<model.coords.length;j+=3){
-            vertices.push(
-                model.coords[j],model.coords[j+1],model.coords[j+2],
-                model.colors[j],model.colors[j+1],model.colors[j+2],
-                model.normals[j],model.normals[j+1],model.normals[j+2]
-            );
-        }
-        return vertices;
-    },
-
-    hash: function(i0,i1){
-        return i0.toString().concat(i1);
-        //return str.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
-    },
-
-    getNormal: function(a,b,c){
-        var edge1 = this.subVector(a,b);
-        var edge2 = this.subVector(a,c);
-        return this.crossProduct(edge1,edge2);
-    },
-
-    interpolateVector: function(a, b){
-        var result = [];
-        result[0] = a[0] + b[0];
-        result[1] = a[1] + b[1];
-        result[2] = a[2] + b[2];
-        return result;
-    },
-
-    subVector: function(a,b){
-        var result = [];
-        result.push(b[0]-a[0], b[1]-a[1], b[2]-a[2]);
-        return result;
-    },
-
-    crossProduct: function(a, b){
-        var result = [];
-        result[0] = a[1] * b[2] - a[2] * b[1];
-        result[1] = a[2] * b[0] - a[0] * b[2];
-        result[2] = a[0] * b[1] - a[1] * b[0];
-        return result;
-    },
-
-    getCoords: function(vertArray, index){
-        return [vertArray[3*index],vertArray[3*index+1],vertArray[3*index+2]];
-    },
-
-    getNormals: function(coords, faces){
-
-        var normals = [];
-        var a, b, c, normal;
-        for(var j = 0; j<faces.length; j+=3){
-
-            a = this.getCoords(coords,faces[j]);
-            b = this.getCoords(coords, faces[j+1]);
-            c = this.getCoords(coords, faces[j+2]);
-
-            normal = this.getNormal(a,b,c);
-            //this.normalize(normal);
-            normals.push(normal[0],normal[1],normal[2]);
-            normals.push(normal[0],normal[1],normal[2]);
-            normals.push(normal[0],normal[1],normal[2]);
+        for(var i =0; i<3;i++){
+            x = Math.sin(LIBS.degToRad(360/3*i))*radius/2;
+            y = Math.cos(LIBS.degToRad(360/3*i))*radius/2;
+            mesh.coords.push(x,y,z);
+            mesh.colors.push(Math.abs(x),Math.abs(y),Math.abs(z));
         }
 
-        /*for(var i = 0; i<vertices.length; i++){
-            normals.push(0);
-        }
-        var a, b, c, na, nb, nc, normal;
-        for(var j = 0; j<faces.length; j+=3){
+        mesh.faces.push(0,1,2);
+        //hashes.push('01','12','02');
 
-            a = this.getCoords(vertices, j);
-            b = this.getCoords(vertices, j+1);
-            c = this.getCoords(vertices, j+2);
+        mesh.normals = mesh.getNormals(mesh.coords, mesh.faces);
 
-            normal = this.getNormal(a,b,c);
-
-            na = this.getCoords(normals, j);
-            nb = this.getCoords(normals, j+1);
-            nc = this.getCoords(normals, j+2);
-
-            var addResult = this.interpolateVector(na,normal);
-            normals[faces[j]] = addResult[0];
-            normals[faces[j]+1] = addResult[1];
-            normals[faces[j]+2] = addResult[2];
-
-            addResult = this.interpolateVector(nb,normal);
-            normals[faces[j+1]] = addResult[0];
-            normals[faces[j+1]+1] = addResult[1];
-            normals[faces[j+1]+2] = addResult[2];
-
-            addResult = this.interpolateVector(nc,normal);
-            normals[faces[j+2]] = addResult[0];
-            normals[faces[j+2]+1] = addResult[1];
-            normals[faces[j+2   ]+2] = addResult[2];
-
-        }*/
-
-        return normals;
+        return mesh;
     },
 
     plane: function(width, length,angle){
@@ -215,159 +119,25 @@ var primitives = {
 
     },
 
-    getMidPointIndex: function(hashes,coords,i0,i1){
-
-        var hash = this.hash(Math.min(i0,i1),Math.max(i0,i1));
-
-        var index = hashes.indexOf(hash);
-
-        for(var i = 0;i<hashes.count;i++){
-            if(hashes[i].hash == hash){
-                return hashes[i].index;
-            }
-        }
-
-        var a = this.getCoords(coords,i0);
-        var b = this.getCoords(coords,i1);
-
-        var midpoint = [
-            (a[0]+b[0])/2,
-            (a[1]+b[1])/2,
-            (a[2]+b[2])/2
-        ];
-
-        /*var radius  = this.length(a);
-        var lengthM = this.length(midpoint);
-        midpoint[0] *= radius/lengthM;
-        midpoint[1] *= radius/lengthM;
-        midpoint[2] *= radius/lengthM;*/
-
-        index = coords.length/3;
-        coords.push(midpoint[0],midpoint[1],midpoint[2]);
-        hashes.push({hash: hash, index: index});
-
-        return index;
-    },
-
-    subdivideIcosahedra: function(model){
-        var hashes=[];
-        var facesLength = model.faces.length;
-        var newFaces = [];
-
-        for(var i = 0;i<facesLength-2;i+=3){
-            var a, b, c, r, g, b, m01, m12, m02;
-
-            var i0 = model.faces[i];
-            var i1 = model.faces[i + 1];
-            var i2 = model.faces[i + 2];
-
-
-            m01  = this.getMidPointIndex(hashes, model.coords,i0,i1);
-            m12  = this.getMidPointIndex(hashes, model.coords,i1,i2);
-            m02  = this.getMidPointIndex(hashes, model.coords,i0,i2);
-
-            r = Math.abs(1);
-            g = Math.abs(0);
-            b = Math.abs(1);
-
-            model.colors.push(r,g, b);
-            model.colors.push(r,g, b);
-            model.colors.push(r, g, b);
-
-            newFaces.push(
-                i0,m01,m02,
-                i1,m12,m01,
-                i2,m02,m12,
-                m02,m01,m12
-            );
-        }
-        model.normals.push.apply(model.normals, this.getNormals(model.coords, model.faces));
-        return model;
-    },
-
-    subdivideFaces: function(model){
-        var hashes=[];
-        var facesLength = model.faces.length;
-        var newFaces = [];
-
-        for(var i = 0;i<facesLength-2;i+=3){
-            var a, b, c, r, g, b, m01, m12, m02;
-
-            var i0 = model.faces[i];
-            var i1 = model.faces[i + 1];
-            var i2 = model.faces[i + 2];
-
-
-            m01  = this.getMidPointIndex(hashes, model.coords,i0,i1);
-            m12  = this.getMidPointIndex(hashes, model.coords,i1,i2);
-            m02  = this.getMidPointIndex(hashes, model.coords,i0,i2);
-
-            r = Math.abs(1);
-            g = Math.abs(0);
-            b = Math.abs(1);
-
-            model.colors.push(r,g, b);
-            model.colors.push(r,g, b);
-            model.colors.push(r, g, b);
-
-            newFaces.push(
-                i0,m01,m02,
-                i1,m12,m01,
-                i2,m02,m12,
-                m02,m01,m12
-            );
-        }
-        model.normals.push.apply(model.normals, this.getNormals(model.coords, model.faces));
-        return {coords: model.coords, colors: model.colors, faces: newFaces, normals: model.normals};
-    },
-
-    triangle: function(radius, z){
-        var x, y;
-        var vertices = [];
-        var coords = [];
-        var colors = [];
-        var faces = [];
-        var normals = [];
-        var hashes = [];
-
-        for(var i =0; i<3;i++){
-            x = Math.sin(LIBS.degToRad(360/3*i))*radius/2;
-            y = Math.cos(LIBS.degToRad(360/3*i))*radius/2;
-            coords.push(x,y,z);
-            colors.push(Math.abs(x),Math.abs(y),Math.abs(z));
-        }
-
-        faces.push(0,1,2);
-        //hashes.push('01','12','02');
-
-        normals = this.getNormals(coords, faces);
-
-        return {coords: coords, colors: colors, normals: normals, faces: faces};
-    },
-
     cone: function(radius, height, rate){
-        var vertices = [];
-        var coords = [];
-        var colors = [];
-        var faces = [];
-        var normals = [];
-        coords.push(0,0,height/2);
-        colors.push(0,0,1)
+        var mesh = new Mesh();
+        mesh.coords.push(0,0,height/2);
+        mesh.colors.push(0,0,1)
         var z = -1*height/2;
         for(var i = 0; i<rate; i++){
             var angle = LIBS.degToRad(360/rate*i);
             var x = Math.sin(angle)*radius;
             var y =  Math.cos(angle)*radius;
             //vertice coords
-            coords.push(x, y, z);
+            mesh.coords.push(x, y, z);
             //color for vertice
-            colors.push(1, 0,0);
-            faces.push(0, i+1,i<rate-1?i+2:1);
+            mesh.colors.push(1, 0,0);
+            mesh.faces.push(0, i+1,i<rate-1?i+2:1);
         }
 
-        normals = this.getNormals(coords, faces);
+        mesh.getNormals();
 
-        return {vertices: [], coords: coords, colors:colors, normals: normals, faces: faces};
+        return mesh;
     },
 
     cylinder: function(radius, height, rate){

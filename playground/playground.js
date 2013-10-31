@@ -117,15 +117,15 @@ var main=function() {
     GL.useProgram(SHADER_PROGRAM);
 
     //var model = primitives.triangle(2,0);
-    var model = primitives.triangle(3,0);
-
-    for (var i = 0; i < 3; i++){
-        model = primitives.subdivideFaces(model);
+    var mesh = primitives.cone(2,2,3);
+    //mesh.subdivideFaces(3);
+    mesh.prepare();
+    var verticesLength = mesh.vertices.length;
+    for(var i  = 0; i<mesh.normals.length;i++){
+        mesh.vertices.push(mesh.normals[i])
+        mesh.vertices.push(mesh.colors[i])
+        mesh.vertices.push(mesh.normals[i])
     }
-
-    //primitives.normalize(model.normals);
-
-    model.vertices = primitives.prepareVertices(model);
 
     var vBuffer = GL.createBuffer ();
     GL.bindBuffer(GL.ARRAY_BUFFER, vBuffer);
@@ -172,16 +172,17 @@ var main=function() {
         GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
         GL.uniform3f(_wsLightPosition, 0,0,5);
 
-        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(model.vertices), GL.STATIC_DRAW);
+        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(mesh.vertices), GL.STATIC_DRAW);
 
         GL.vertexAttribPointer(_position, 3, GL.FLOAT, false,4*9,0) ;
         GL.vertexAttribPointer(_color, 3, GL.FLOAT, false,4*9,3*4) ;
         GL.vertexAttribPointer(_normal, 3, GL.FLOAT, false,4*9,6*4);
 
-        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(model.faces), GL.STATIC_DRAW);
+        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(mesh.faces), GL.STATIC_DRAW);
 
-        GL.drawElements(GL.TRIANGLES, model.faces.length, GL.UNSIGNED_SHORT, 0);
-        //GL.drawArrays(GL.LINES, 0, model.vertices.length/9)
+        GL.drawElements(GL.TRIANGLES, mesh.faces.length, GL.UNSIGNED_SHORT, 0);
+        GL.drawArrays(GL.LINES, verticesLength, mesh.vertices.length/9-verticesLength/9)
+        GL.drawArrays(GL.POINTS, verticesLength, mesh.vertices.length/9-verticesLength/9)
 
         GL.flush();
 
