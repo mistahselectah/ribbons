@@ -36,6 +36,8 @@ var Mesh = function(){
             normal = this.getNormal(a,b,c);
             //this.normalize(normal);
             this.normals.push.apply(this.normals, normal);
+            this.normals.push.apply(this.normals, normal);
+            this.normals.push.apply(this.normals, normal);
         }
     }
 
@@ -115,40 +117,46 @@ var Mesh = function(){
         return index;
     }
 
-    this.subdivideFaces =  function(count){
+    this.subdivideFaces =  function(){
         var hashes=[];
         var facesLength = this.faces.length;
         var newFaces = [];
-        for(var j = 0; j<count; j++){
-            for(var i = 0;i<facesLength-2;i+=3){
-                var a, b, c, r, g, b, m01, m12, m02;
 
-                var i0 = this.faces[i];
-                var i1 = this.faces[i + 1];
-                var i2 = this.faces[i + 2];
+        for(var i = 0;i<facesLength-2;i+=3){
+            var a, b, c, r, g, b, m01, m12, m02;
+
+            var i0 = this.faces[i];
+            var i1 = this.faces[i + 1];
+            var i2 = this.faces[i + 2];
 
 
-                m01  = this.getMidPointIndex(hashes, i0,i1);
-                m12  = this.getMidPointIndex(hashes, i1,i2);
-                m02  = this.getMidPointIndex(hashes, i0,i2);
+            m01  = this.getMidPointIndex(hashes, i0,i1);
+            m12  = this.getMidPointIndex(hashes, i1,i2);
+            m02  = this.getMidPointIndex(hashes, i0,i2);
 
-                r = Math.abs(1);
-                g = Math.abs(0);
-                b = Math.abs(1);
+            r = Math.abs(1);
+            g = Math.abs(0);
+            b = Math.abs(1);
 
-                this.colors.push(r,g, b);
-                this.colors.push(r,g, b);
-                this.colors.push(r, g, b);
+            this.colors.push(r,g, b);
+            this.colors.push(r,g, b);
+            this.colors.push(r, g, b);
 
-                newFaces.push(
-                    i0,m01,m02,
-                    i1,m12,m01,
-                    i2,m02,m12,
-                    m02,m01,m12
-                );
-            }
-            this.normals.push.apply(this.normals, this.getNormals(this.coords, this.faces));
+            /*newFaces.splice(i,3,
+                i0,m01,m02,
+                i1,m12,m01,
+                i2,m02,m12,
+                m02,m01,m12
+            );*/
+
+            this.faces.push(
+                i0,m01,m02,
+                i1,m12,m01,
+                i2,m02,m12,
+                m02,m01,m12
+            );
+
+
         }
-
     }
 }

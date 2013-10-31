@@ -116,21 +116,13 @@ var main=function() {
 
     GL.useProgram(SHADER_PROGRAM);
 
-    //var model = primitives.triangle(2,0);
-    var mesh = primitives.cylinder(2,3,36);
+    var mesh = primitives.icosahedron(2,1);
+
     for(var i=0;i<mesh.normals.length;i+=3){
         mesh.vertices.push.apply(mesh.vertices,[mesh.normals[i],mesh.normals[i+1],mesh.normals[i+2]])
         mesh.vertices.push.apply(mesh.vertices,[1,1,1])
         mesh.vertices.push.apply(mesh.vertices,[mesh.normals[i],mesh.normals[i+1],mesh.normals[i+2]])
     }
-    //mesh.subdivideFaces(3);
-    mesh.prepare();
-    /*var verticesLength = mesh.vertices.length;
-    for(var i  = 0; i<mesh.normals.length;i++){
-        mesh.vertices.push(mesh.normals[i])
-        mesh.vertices.push(mesh.colors[i])
-        mesh.vertices.push(mesh.normals[i])
-    }*/
 
     var vBuffer = GL.createBuffer ();
     GL.bindBuffer(GL.ARRAY_BUFFER, vBuffer);
@@ -188,6 +180,7 @@ var main=function() {
         GL.drawElements(GL.TRIANGLES, mesh.faces.length, GL.UNSIGNED_SHORT, 0);
         //GL.drawArrays(GL.LINES, verticesLength, mesh.vertices.length/9-verticesLength/9)
 
+        //GL.drawArrays(GL.POINTS, 0, mesh.coords.length/3)
         GL.drawArrays(GL.POINTS, mesh.coords.length/3, mesh.coords.length/3)
 
         GL.flush();
