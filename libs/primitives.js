@@ -201,30 +201,29 @@ var primitives = {
     },
 
     cylinders: function(rFactor, hFactor, rateFactor, count){
-        var model;
         var radius = 0.5;
         var height = 1;
         for(var i = 0; i<count; i++){
             radius += rFactor;
             height += hFactor;
-            if(!model){
-                model = this.cylinder(radius,height,rateFactor);
+            if(!mesh){
+                var mesh = this.cylinder(radius,height,rateFactor);
             }
             else{
-                var facesLength = model.faces.length;
+                var facesLength = mesh.faces.length;
                 var cylinder = this.cylinder(radius,height,rateFactor);
-                for(var vi = 0; vi<cylinder.coords.length; vi++){
-                    model.coords.push(cylinder.coords[vi]);
+
+                mesh.coords.push.apply(mesh.coords, cylinder.coords);
+                mesh.colors.push.apply(mesh.colors, cylinder.colors);
+                mesh.normals.push.apply(mesh.normals, cylinder.normals);
+                for(var fi = 0; fi<cylinder.faces.length; fi++){
+                    mesh.faces.push(cylinder.faces[fi]+facesLength/3);
                 }
 
-                for(var fi = 0; fi<cylinder.faces.length; fi++){
-                    model.faces.push(cylinder.faces[fi]+facesLength/3);
-                }
             }
         }
-        model.rate = rateFactor;
-        model.count = count;
-        return model;
+        mesh.prepare();
+        return mesh;
     },
 
     icosahedron: function(radius, divisions){

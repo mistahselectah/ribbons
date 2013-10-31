@@ -210,13 +210,11 @@ var main=function() {
 
 
     var time_old=0;
-    var rate = 3;
-    var elCount = 1;
+    var rate = 120;
+    var elCount = 10;
 
-    var model = primitives.cylinders(1,1,rate,elCount);
-    //primitives.normalize(model.normals);
-    model.vertices = primitives.prepareVertices(model);
-    //model.vertices.push(0,1,5,1,1,1,0,0,0);
+    var mesh = primitives.cylinders(0.5,0.5,rate,elCount);
+
     var animate=function(time) {
 
         var dt=time-time_old;
@@ -246,16 +244,16 @@ var main=function() {
             $('#magnitude').children().slice(15).remove();
         }
 
-        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(model.vertices), GL.STATIC_DRAW);
+        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(mesh.vertices), GL.STATIC_DRAW);
 
         GL.vertexAttribPointer(_position, 3, GL.FLOAT, false,4*9,0) ;
         GL.vertexAttribPointer(_color, 3, GL.FLOAT, false,4*9,3*4) ;
         GL.vertexAttribPointer(_normal, 3, GL.FLOAT, false,4*9,6*4);
 
-        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(model.faces), GL.STATIC_DRAW);
+        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(mesh.faces), GL.STATIC_DRAW);
 
-        GL.drawElements(GL.TRIANGLES, model.faces.length, GL.UNSIGNED_SHORT, 0);
-        //GL.drawArrays(GL.POINTS,model.vertices.length/9-1,1);
+        GL.drawElements(GL.TRIANGLES, mesh.faces.length, GL.UNSIGNED_SHORT, 0);
+        GL.drawArrays(GL.POINTS,0, mesh.vertices.length/9);
         GL.flush();
 
         window.requestAnimationFrame(animate);

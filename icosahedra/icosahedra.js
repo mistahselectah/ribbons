@@ -127,7 +127,7 @@ var main=function() {
     var THETA=0,
         PHI=0;
 
-    LIBS.translateZ(VIEWMATRIX, -30);
+    LIBS.translateZ(VIEWMATRIX, -10);
 
     /*========================= DRAWING ========================= */
     GL.enable(GL.DEPTH_TEST);
@@ -145,7 +145,7 @@ var main=function() {
 
 
     //var model = primitives.icosahedron(5,4);
-    var mesh = primitives.icosahedron(3,4);
+    var mesh = primitives.icosahedron(3,1);
 
     var animate=function(time) {
 
@@ -169,7 +169,7 @@ var main=function() {
         GL.uniform3f(_wsLightPosition, lightPosition[0],lightPosition[1],lightPosition[2]);
 
         GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
-        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(model.vertices), GL.STATIC_DRAW);
+        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(mesh.vertices), GL.STATIC_DRAW);
 
 
 
@@ -178,9 +178,9 @@ var main=function() {
         GL.vertexAttribPointer(_normal, 3, GL.FLOAT, false,4*9,6*4);
 
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, facesBuffer);
-        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(model.faces), GL.STATIC_DRAW);
+        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(mesh.faces), GL.STATIC_DRAW);
 
-        GL.drawElements(GL.TRIANGLES, model.faces.length, GL.UNSIGNED_SHORT, 0);
+        GL.drawElements(GL.TRIANGLES, mesh.faces.length, GL.UNSIGNED_SHORT, 0);
         //GL.drawArrays(GL.POINTS,0,model.vertices.length/9);
 
         GL.flush();

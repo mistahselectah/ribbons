@@ -116,7 +116,7 @@ var main=function() {
 
     GL.useProgram(SHADER_PROGRAM);
 
-    var mesh = primitives.icosahedron(2,3);
+    var mesh = primitives.icosahedron(2,2);
     console.log(mesh)
 
     for(var i=0;i<mesh.normals.length;i+=3){
@@ -143,10 +143,10 @@ var main=function() {
     LIBS.translateZ(VIEWMATRIX, -10);
 
     /*========================= DRAWING ========================= */
-    GL.enable(GL.DEPTH_TEST);
-    GL.depthFunc(GL.LESS);
-    //GL.enable(GL.BLEND);
-    //GL.blendFunc(GL.SRC_ALPHA, GL.ONE);
+    //GL.enable(GL.DEPTH_TEST);
+    //GL.depthFunc(GL.LESS);
+    GL.enable(GL.BLEND);
+    GL.blendFunc(GL.SRC_ALPHA, GL.ONE);
     GL.clearColor(0.0, 0.0, 0.0, 0.0);
     GL.clearDepth(1.0);
 
