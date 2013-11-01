@@ -192,7 +192,7 @@ var main=function() {
     var THETA=0,
         PHI=0;
 
-    LIBS.translateZ(VIEWMATRIX, -10);
+    LIBS.translateZ(VIEWMATRIX, -30);
 
     /*========================= DRAWING ========================= */
     //GL.enable(GL.DEPTH_TEST);
@@ -211,9 +211,9 @@ var main=function() {
 
     var time_old=0;
     var rate = 120;
-    var elCount = 10;
+    var elCount = 50;
 
-    var mesh = primitives.cylinders(0.5,0.5,rate,elCount);
+    var mesh = primitives.cylinders(0.5,0.1,rate,elCount);
 
     var animate=function(time) {
 
