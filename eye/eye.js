@@ -249,8 +249,8 @@ var main=function() {
             peaks.children().slice(10).remove();
             for(var  i = 0; i<interpolation; i++){
                 if(vertices[itemIndex])
-                zOffset(vertices,rate,itemIndex+i,currentMagnitude*10);
-                colorOffset(vertices,rate,itemIndex+i,currentMagnitude/100);
+                zOffset(vertices,rate,itemIndex+i,currentMagnitude);
+                colorOffset(vertices,rate,itemIndex+i,currentMagnitude/1000);
             }
 
             if(itemIndex<count){
@@ -291,7 +291,7 @@ var main=function() {
         GL.uniformMatrix4fv(_Pmatrix, false, PROJMATRIX);
         GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
         GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
-        GL.uniform3f(_wsLightPosition, 0,0,20);
+        GL.uniform3f(_wsLightPosition, -20,-20,0);
 
         GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
         GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(vertices), GL.STATIC_DRAW);

@@ -315,11 +315,7 @@ var primitives = {
     },
 
     spiral: function(rStart, rOffset,height,rate,count){
-        var vertices = [];
-        var coords = [];
-        var colors = [];
-        var faces = [];
-        var normals = [];
+       var mesh = new Mesh();
         var radius = 0.1;
         var zOffset = rate*count/2*-0.001;
 
@@ -346,40 +342,30 @@ var primitives = {
             var y =  Math.cos(angle)*radius;
             var z = height/2;
             //vertice coords
-            coords.push(x, y, z+zOffset);
-            colors.push(Math.abs(x), Math.abs(y),Math.abs(z));
+            mesh.coords.push(x, y, z+zOffset);
+            mesh.colors.push(Math.abs(x), Math.abs(y),Math.abs(z));
 
-            coords.push(x, y, -1*z+zOffset);
-            colors.push(Math.abs(x), Math.abs(y),Math.abs(z));
+            mesh.coords.push(x, y, -1*z+zOffset);
+            mesh.colors.push(Math.abs(x), Math.abs(y),Math.abs(z));
 
             if(i<rate*count-2){
-                faces.push(i*2, i*2+1,i*2+2);
-                faces.push(i*2+2, i*2+1, i*2+3);
+                mesh.faces.push(i*2, i*2+1,i*2+2);
+                mesh.faces.push(i*2+2, i*2+1, i*2+3);
             }else{
 
             }
 
         }
 
-        normals = this.getNormals(coords, faces);
+        mesh.getNormals();
 
-        for(var j = 0; j<coords.length;j+=3){
-            vertices.push(
-                coords[j],coords[j+1],coords[j+2],
-                colors[j],colors[j+1],colors[j+2],
-                normals[j],normals[j+1],normals[j+2]
-            );
-        }
+        mesh.prepare();
 
-        return {vertices: vertices, faces: faces};
+        return mesh;
     },
 
     spiralFlower: function(rStart, rOffset,height,rate,count){
-            var vertices = [];
-            var coords = [];
-            var colors = [];
-            var faces = [];
-            var normals = [];
+            var mesh = new Mesh();
             var radius = 0.1;
             var zOffset = rate*count/2*-0.001;
 
@@ -404,32 +390,26 @@ var primitives = {
                 var y =  Math.cos(angle)*radius;
                 var z = height/2;
                 //vertice coords
-                coords.push(x, y, z+zOffset);
-                colors.push(Math.abs(x), Math.abs(y),Math.abs(z));
+                mesh.coords.push(x, y, z+zOffset);
+                mesh.colors.push(1, 0,1);
 
-                coords.push(x, y, -1*z+zOffset);
-                colors.push(Math.abs(x), Math.abs(y),Math.abs(z));
+                mesh.coords.push(x, y, -1*z+zOffset);
+                mesh.colors.push(0, 1,0);
 
                 if(i<rate*count-2){
-                    faces.push(i*2, i*2+1,i*2+2);
-                    faces.push(i*2+2, i*2+1, i*2+3);
+                    mesh.faces.push(i*2, i*2+1,i*2+2);
+                    mesh.faces.push(i*2+2, i*2+1, i*2+3);
                 }else{
 
                 }
 
             }
 
-            normals = this.getNormals(coords, faces);
+            mesh.getNormals();
 
-            for(var j = 0; j<coords.length;j+=3){
-                vertices.push(
-                    coords[j],coords[j+1],coords[j+2],
-                    colors[j],colors[j+1],colors[j+2],
-                    normals[j],normals[j+1],normals[j+2]
-                );
-            }
+            mesh.prepare();
 
-        return {coords: coords, colors: colors, normals: normals, faces: faces};
+            return mesh;
         },
 
     sphere: function(radius, smoothness){

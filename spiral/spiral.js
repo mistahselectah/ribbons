@@ -116,10 +116,9 @@ var main=function() {
 
     GL.useProgram(SHADER_PROGRAM);
 
-    //var model = primitives.spiral(0.1,0.001,0.5,360,100);
-    var model = primitives.spiralFlower(0.1,0.005,5,120,10);
-    primitives.normalize(model.normals);
-    model.vertices = primitives.prepareVertices(model);
+    var model = primitives.spiral(0.1,0.001,0.5,360,100);
+    //var model = primitives.spiralFlower(0.1,0.005,5,50,10);
+
     var vertexBuffer= GL.createBuffer ();
     GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
     GL.bufferData(GL.ARRAY_BUFFER,
@@ -160,8 +159,8 @@ var main=function() {
         }
 
         LIBS.set_I4(MOVEMATRIX);
-        LIBS.rotateY(MOVEMATRIX, THETA+dt/1000);
-        LIBS.rotateX(MOVEMATRIX, PHI+dt/1000);
+        LIBS.rotateY(MOVEMATRIX, THETA);
+        LIBS.rotateX(MOVEMATRIX, PHI);
         time_old=time;
 
         GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height);
