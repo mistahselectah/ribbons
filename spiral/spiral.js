@@ -117,7 +117,8 @@ var main=function() {
     GL.useProgram(SHADER_PROGRAM);
 
     var model = primitives.spiral(0.1,0.001,0.5,360,100);
-    //var model = primitives.spiralFlower(0.1,0.005,5,50,10);
+
+   //var model = primitives.spiralFlower(0.1,0.005,0.5,360,100);
 
     var vertexBuffer= GL.createBuffer ();
     GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);

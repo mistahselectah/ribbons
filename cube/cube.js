@@ -59,6 +59,43 @@ var main=function() {
         return shader;
     }
 
+
+    /*========================= TEXTURES ========================= */
+    var get_texture=function(image_URL){
+
+
+        var image=new Image();
+
+        image.src=image_URL;
+        image.webglTexture=false;
+
+
+        image.onload=function(e) {
+
+
+
+            var texture=GL.createTexture();
+
+            GL.pixelStorei(GL.UNPACK_FLIP_Y_WEBGL, true);
+
+
+            GL.bindTexture(GL.TEXTURE_2D, texture);
+
+            GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, image);
+
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
+
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
+
+            GL.bindTexture(GL.TEXTURE_2D, null);
+
+            image.webglTexture=texture;
+        }
+
+        return image;
+    }
+
+    var cube_texture=get_texture("../resource/texture.png");
     var shader_vertex=getShader(GL, "color-shader-vs");
     var shader_fragment=getShader( GL, "color-shader-fs");
 
@@ -72,46 +109,50 @@ var main=function() {
     var _Vmatrix = GL.getUniformLocation(SHADER_PROGRAM, "Vmatrix");
     var _Mmatrix = GL.getUniformLocation(SHADER_PROGRAM, "Mmatrix");
 
-    var _color = GL.getAttribLocation(SHADER_PROGRAM, "color");
+    var _sampler = GL.getUniformLocation(SHADER_PROGRAM, "sampler");
+    var _uv = GL.getAttribLocation(SHADER_PROGRAM, "uv");
     var _position = GL.getAttribLocation(SHADER_PROGRAM, "position");
 
-    GL.enableVertexAttribArray(_color);
+    GL.enableVertexAttribArray(_position);
+
+    GL.enableVertexAttribArray(_uv);
     GL.enableVertexAttribArray(_position);
 
     GL.useProgram(SHADER_PROGRAM);
+    GL.uniform1i(_sampler, 0);
 
     /*========================= THE CUBE ========================= */
     //POINTS :
     var cube_vertex=[
-        -1,-1,-1,     1,1,0,
-        1,-1,-1,     1,1,0,
-        1, 1,-1,     1,1,0,
-        -1, 1,-1,     1,1,0,
+        -1,-1,-1,    0,0,
+        1,-1,-1,     1,0,
+        1, 1,-1,     1,1,
+        -1, 1,-1,    0,1,
 
-        -1,-1, 1,     0,0,1,
-        1,-1, 1,     0,0,1,
-        1, 1, 1,     0,0,1,
-        -1, 1, 1,     0,0,1,
+        -1,-1, 1,    0,0,
+        1,-1, 1,     1,0,
+        1, 1, 1,     1,1,
+        -1, 1, 1,    0,1,
 
-        -1,-1,-1,     0,1,1,
-        -1, 1,-1,     0,1,1,
-        -1, 1, 1,     0,1,1,
-        -1,-1, 1,     0,1,1,
+        -1,-1,-1,    0,0,
+        -1, 1,-1,    1,0,
+        -1, 1, 1,    1,1,
+        -1,-1, 1,    0,1,
 
-        1,-1,-1,     1,0,0,
-        1, 1,-1,     1,0,0,
-        1, 1, 1,     1,0,0,
-        1,-1, 1,     1,0,0,
+        1,-1,-1,     0,0,
+        1, 1,-1,     1,0,
+        1, 1, 1,     1,1,
+        1,-1, 1,     0,1,
 
-        -1,-1,-1,     1,0,1,
-        -1,-1, 1,     1,0,1,
-        1,-1, 1,     1,0,1,
-        1,-1,-1,     1,0,1,
+        -1,-1,-1,    0,0,
+        -1,-1, 1,    1,0,
+        1,-1, 1,     1,1,
+        1,-1,-1,     0,1,
 
-        -1, 1,-1,     0,1,0,
-        -1, 1, 1,     0,1,0,
-        1, 1, 1,     0,1,0,
-        1, 1,-1,     0,1,0,
+        -1, 1,-1,    0,0,
+        -1, 1, 1,    1,0,
+        1, 1, 1,     1,1,
+        1, 1,-1,     0,1
 
     ];
 
@@ -167,9 +208,9 @@ var main=function() {
     var time_old=0;
     var animate=function(time) {
         var dt=time-time_old;
-        LIBS.rotateZ(MOVEMATRIX, dt*0.001);
-        LIBS.rotateY(MOVEMATRIX, dt*0.002);
-        LIBS.rotateX(MOVEMATRIX, dt*0.003);
+        LIBS.rotateZ(MOVEMATRIX, dt*0.0001);
+        LIBS.rotateY(MOVEMATRIX, dt*0.0002);
+        LIBS.rotateX(MOVEMATRIX, dt*0.0003);
         time_old=time;
 
         GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height);
@@ -177,8 +218,14 @@ var main=function() {
         GL.uniformMatrix4fv(_Pmatrix, false, PROJMATRIX);
         GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
         GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
-        GL.vertexAttribPointer(_position, 3, GL.FLOAT, false,4*(3+3),0) ;
-        GL.vertexAttribPointer(_color, 3, GL.FLOAT, false,4*(3+3),3*4) ;
+        if (cube_texture.webglTexture) {
+
+            GL.activeTexture(GL.TEXTURE0);
+
+            GL.bindTexture(GL.TEXTURE_2D, cube_texture.webglTexture);
+        }
+        GL.vertexAttribPointer(_position, 3, GL.FLOAT, false,4*(3+2),0) ;
+        GL.vertexAttribPointer(_uv, 2, GL.FLOAT, false,4*(3+2),3*4) ;
         GL.bindBuffer(GL.ARRAY_BUFFER, CUBE_VERTEX);
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, CUBE_FACES);
         GL.drawElements(GL.TRIANGLES, 6*2*3, GL.UNSIGNED_SHORT, 0);

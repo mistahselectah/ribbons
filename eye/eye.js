@@ -250,7 +250,7 @@ var main=function() {
             for(var  i = 0; i<interpolation; i++){
                 if(vertices[itemIndex])
                 zOffset(vertices,rate,itemIndex+i,currentMagnitude);
-                colorOffset(vertices,rate,itemIndex+i,currentMagnitude/1000);
+                colorOffset(vertices,rate,itemIndex+i,currentMagnitude);
             }
 
             if(itemIndex<count){
@@ -295,8 +295,6 @@ var main=function() {
 
         GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
         GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(vertices), GL.STATIC_DRAW);
-
-
 
         GL.vertexAttribPointer(_position, 3, GL.FLOAT, false,4*9,0) ;
         GL.vertexAttribPointer(_color, 3, GL.FLOAT, false,4*9,3*4) ;

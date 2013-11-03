@@ -116,7 +116,7 @@ var main=function() {
 
     GL.useProgram(SHADER_PROGRAM);
 
-    var mesh = primitives.icosahedron(2,2);
+    var mesh = primitives.icosahedron(2,1);
     console.log(mesh)
 
     for(var i=0;i<mesh.normals.length;i+=3){
